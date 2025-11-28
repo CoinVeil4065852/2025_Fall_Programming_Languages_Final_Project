@@ -1,0 +1,68 @@
+--- English duplicates (same value used for multiple keys) ---
+None
+
+--- zh-TW duplicates (same value used for multiple keys) ---
+"登入" -> ['sign_in', 'Login']
+"註冊" -> ['sign_up', 'Register']
+
+--- Keys only in en ---
+None
+
+--- Keys only in zh-TW ---
+None
+
+--- Keys present in both locales and their values ---
+Login: en="Login" | zh-TW="登入"
+Register: en="Register" | zh-TW="註冊"
+activity: en="Activity" | zh-TW="活動"
+activity_description: en="Log workouts and steps" | zh-TW="記錄運動與步數"
+age: en="Age" | zh-TW="年齡"
+age_invalid: en="Invalid age" | zh-TW="年齡無效"
+age_placeholder: en="Your age" | zh-TW="您的年齡"
+age_required: en="Age is required" | zh-TW="請輸入年齡"
+confirm_password: en="Confirm password" | zh-TW="確認密碼"
+confirm_password_placeholder: en="Repeat your password" | zh-TW="再次輸入密碼"
+confirm_password_required: en="Please confirm your password" | zh-TW="請確認您的密碼"
+custom_category: en="Custom Category" | zh-TW="自訂分類"
+custom_category_description: en="Create and manage custom health metrics" | zh-TW="建立並管理自訂健康指標"
+description: en="This is a sample application to demonstrate localization." | zh-TW="這是一個示範本地化的範例應用程式。"
+female: en="Female" | zh-TW="女性"
+gender: en="Gender" | zh-TW="性別"
+gender_invalid: en="Invalid gender selection" | zh-TW="性別選擇無效"
+gender_placeholder: en="Select your gender" | zh-TW="選擇您的性別"
+gender_required: en="Gender is required" | zh-TW="請選擇性別"
+height: en="Height" | zh-TW="身高"
+height_invalid: en="Invalid height" | zh-TW="身高無效"
+height_placeholder: en="Your height (cm)" | zh-TW="您的身高 (cm)"
+height_required: en="Height is required" | zh-TW="請輸入身高"
+invalid_password: en="Invalid password" | zh-TW="密碼無效"
+invalid_username: en="Invalid username" | zh-TW="使用者名稱無效"
+login_failed: en="Login failed" | zh-TW="登入失敗"
+male: en="Male" | zh-TW="男性"
+other: en="Other" | zh-TW="其他"
+overview: en="Overview" | zh-TW="總覽"
+overview_description: en="Summary of your recent health data" | zh-TW="您的最近健康資料摘要"
+password: en="Password" | zh-TW="密碼"
+password_placeholder: en="Your password" | zh-TW="您的密碼"
+password_required: en="Password is required" | zh-TW="請輸入密碼"
+password_requirements: en="Password must be at least 8 characters and include lowercase, uppercase, and a number" | zh-TW="密碼至少 8 個字元，並包含小寫字母、大寫字母和數字"
+passwords_mismatch: en="Passwords do not match" | zh-TW="密碼不相符"
+register_page_login_prompt: en="Already have an account?" | zh-TW="已經有帳號了？"
+register_prompt: en="Don't have an account?" | zh-TW="還沒有帳號？"
+registration_failed: en="Registration failed" | zh-TW="註冊失敗"
+remember_me: en="Remember me" | zh-TW="記住我"
+sign_in: en="Sign in" | zh-TW="登入"
+sign_up: en="Sign up" | zh-TW="註冊"
+sleep: en="Sleep" | zh-TW="睡眠"
+sleep_description: en="View sleep duration and quality" | zh-TW="檢視睡眠時長與品質"
+title: en="Welcome to Our Application" | zh-TW="歡迎使用我們的應用程式"
+username: en="Username" | zh-TW="使用者名稱"
+username_invalid_chars: en="Username must not contain special characters" | zh-TW="使用者名稱不得包含特殊字元"
+username_placeholder: en="Your username" | zh-TW="您的使用者名稱"
+username_required: en="Username is required" | zh-TW="請輸入使用者名稱"
+water: en="Water" | zh-TW="喝水"
+water_description: en="Track daily water intake" | zh-TW="追蹤每日飲水量"
+weight: en="Weight" | zh-TW="體重"
+weight_invalid: en="Invalid weight" | zh-TW="體重無效"
+weight_placeholder: en="Your weight (kg)" | zh-TW="您的體重 (kg)"
+weight_required: en="Weight is required" | zh-TW="請輸入體重"
