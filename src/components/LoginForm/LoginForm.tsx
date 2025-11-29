@@ -42,7 +42,7 @@ const LoginForm = () => {
         storage.setItem('authToken', result.token);
       }
       // Navigate to home after successful login
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err?.message ?? 'Login failed');
     } finally {
