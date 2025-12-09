@@ -8,26 +8,14 @@
 - Body JSON (all fields required):
 
 ```json
-[
-  { "id": "cat-1", "name": "Eating" },
-  { "id": "cat-2", "name": "Meditation" }
-]
+{ "name": "...", "password": "...", "age": 30, "weightKg": 70, "heightM": 1.75, "gender": "male|female|other" }
 ```
 
-"password": "...",
-"age": 30,
-"weightKg": 70,
-"heightM": 1.75,
-"gender": "male|female|other"
-}
-
-````
-
-- Success: `200` returns a JWT token
+- Success: `201 Created` returns a JWT token
 
 ```json
 { "token": "<jwt>" }
-````
+```
 
 - Errors:
   - `400 Bad Request` — missing or invalid fields: `{ "errorMessage": "Missing or invalid fields", "details": { "field": "reason" } }`
@@ -63,14 +51,14 @@
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — profile not found
 
-## Water
+## Waters
 
-### POST `/water/add`
+### POST `/waters`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime": "2025-12-09T08:00:00Z", "amountMl": 250 }`
-- Success: returns the created item object, for example:
+- Body JSON (required): `{ "datetime": "2025-12-09T08:00:00Z", "amountMl": 250 }`
+- Success: `201 Created` returns the created item object, for example:
 
 ```json
 { "id": "...", "datetime": "2025-12-09T08:00:00Z", "amountMl": 250 }
@@ -80,7 +68,7 @@
   - `400 Bad Request` — missing/invalid fields: `{ "errorMessage": "Missing datetime or amountMl" }`
   - `401 Unauthorized` — missing/invalid token
 
-### GET `/water/list`
+### GET `/waters`
 
 - Header: `Authorization: Bearer <jwt>`
 - Success: returns an array of records, for example:
@@ -92,11 +80,11 @@
 - Errors:
   - `401 Unauthorized` — missing/invalid token
 
-### PUT `/water/{id}`
+### PATCH `/waters/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime"?: "2025-12-09T08:00:00Z", "amountMl"?: 300 }`
+- Body JSON (partial allowed): `{ "datetime"?: "2025-12-09T08:00:00Z", "amountMl"?: 300 }`
 - Success: returns the updated item object, for example:
 
 ```json
@@ -108,22 +96,22 @@
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
 
-### DELETE `/water/{id}`
+### DELETE `/waters/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
-- Success: `204 No Content` or `200` with empty body
+- Success: `204 No Content`
 - Errors:
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
 
-## Sleep
+## Sleeps
 
-### POST `/sleep/add`
+### POST `/sleeps`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime": "2025-12-09T23:00:00Z", "hours": 7.5 }`
-- Success: returns the created sleep item, for example:
+- Body JSON (required): `{ "datetime": "2025-12-09T23:00:00Z", "hours": 7.5 }`
+- Success: `201 Created` returns the created sleep item, for example:
 
 ```json
 { "id": "...", "datetime": "...", "hours": 7.5 }
@@ -133,7 +121,7 @@
   - `400 Bad Request` — missing/invalid fields
   - `401 Unauthorized` — missing/invalid token
 
-### GET `/sleep/list`
+### GET `/sleeps`
 
 - Header: `Authorization: Bearer <jwt>`
 - Success: returns an array of sleep records, for example:
@@ -145,11 +133,11 @@
 - Errors:
   - `401 Unauthorized` — missing/invalid token
 
-### PUT `/sleep/{id}`
+### PATCH `/sleeps/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime"?: "2025-12-09T23:00:00Z", "hours"?: 8.0 }`
+- Body JSON (partial allowed): `{ "datetime"?: "2025-12-09T23:00:00Z", "hours"?: 8.0 }`
 - Success: returns the updated sleep item, for example:
 
 ```json
@@ -161,22 +149,22 @@
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
 
-### DELETE `/sleep/{id}`
+### DELETE `/sleeps/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
-- Success: `204 No Content` or `200` with empty body
+- Success: `204 No Content`
 - Errors:
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
 
-## Activity
+## Activities
 
-### POST `/activity/add`
+### POST `/activities`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime": "2025-12-09T18:00:00Z", "minutes": 30, "intensity": "moderate" }`
-- Success: returns the created activity item, for example:
+- Body JSON (required): `{ "datetime": "2025-12-09T18:00:00Z", "minutes": 30, "intensity": "moderate" }`
+- Success: `201 Created` returns the created activity item, for example:
 
 ```json
 { "id": "...", "datetime": "...", "minutes": 30, "intensity": "moderate" }
@@ -186,7 +174,7 @@
   - `400 Bad Request` — missing/invalid fields
   - `401 Unauthorized` — missing/invalid token
 
-### GET `/activity/list`
+### GET `/activities`
 
 - Header: `Authorization: Bearer <jwt>`
 - Success: returns an array of activity records, for example:
@@ -198,11 +186,11 @@
 - Errors:
   - `401 Unauthorized` — missing/invalid token
 
-### PUT `/activity/{id}`
+### PATCH `/activities/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
 - Content-Type: `application/json`
-- Body JSON: `{ "datetime"?: "2025-12-09T18:00:00Z", "minutes"?: 45, "intensity"?: "high" }`
+- Body JSON (partial allowed): `{ "datetime"?: "2025-12-09T18:00:00Z", "minutes"?: 45, "intensity"?: "high" }`
 - Success: returns the updated activity item, for example:
 
 ```json
@@ -214,10 +202,10 @@
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
 
-### DELETE `/activity/{id}`
+### DELETE `/activities/{id}`
 
 - Header: `Authorization: Bearer <jwt>`
-- Success: `204 No Content` or `200` with empty body
+- Success: `204 No Content`
 - Errors:
   - `401 Unauthorized` — missing/invalid token
   - `404 Not Found` — record not found
@@ -232,8 +220,8 @@
 
 ```json
 [
-  { "id": "cat-1", "name": "Eating", "color": "#ffcc00" },
-  { "id": "cat-2", "name": "Meditation", "color": "#00ccff" }
+  { "id": "cat-1", "categoryName": "Eating" },
+  { "id": "cat-2", "categoryName": "Meditation" }
 ]
 ```
 
@@ -244,15 +232,15 @@
 
 - Header: `Authorization: Bearer <jwt>` (required)
 - Content-Type: `application/json`
-- Body JSON: `{ "name": "Eating" }`
-- Success: `201` returns the created category object, for example:
+- Body JSON: `{ "categoryName": "Eating" }`
+- Success: `201 Created` returns the created category object, for example:
 
 ```json
-{ "id": "cat-1", "name": "Eating" }
+{ "id": "cat-1", "categoryName": "Eating" }
 ```
 
 - Errors:
-  - `400 Bad Request` — missing `name`
+  - `400 Bad Request` — missing `categoryName`
   - `401 Unauthorized` — missing or invalid token
 
 ### GET `/category/{categoryId}/list`
@@ -292,12 +280,12 @@
   - `401 Unauthorized` — missing or invalid token
   - `404 Not Found` — category not found for this user
 
-### PUT `/category/{categoryId}/{itemId}`
+### PATCH `/category/{categoryId}/{itemId}`
 
 - Header: `Authorization: Bearer <jwt>` (required)
 - Content-Type: `application/json`
 - Path params: `categoryId`, `itemId`
-- Body JSON: `{ "datetime"?: "2025-12-09T12:00:00Z", "note"?: "updated details" }`
+- Body JSON (partial allowed): `{ "datetime"?: "2025-12-09T12:00:00Z", "note"?: "updated details" }`
 - Success: `200` returns the updated item object, for example:
 
 ```json
@@ -318,7 +306,7 @@
 
 - Header: `Authorization: Bearer <jwt>` (required)
 - Path params: `categoryId`, `itemId`
-- Success: `204 No Content` or `200` with empty body
+- Success: `204 No Content`
 - Errors:
   - `401 Unauthorized` — missing or invalid token
   - `404 Not Found` — category or item not found for this user
