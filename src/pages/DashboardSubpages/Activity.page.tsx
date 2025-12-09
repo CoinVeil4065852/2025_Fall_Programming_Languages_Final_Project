@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Stack } from '@mantine/core';
-import InfoCard from '../../components/InfoCard/InfoCard';
+import { Grid, Group } from '@mantine/core';
+import ActivityProgressCard from '@/components/InfoCard/ActivityProgressCard/ActivityProgressCard';
+import ActivityWeeklyCard from '@/components/InfoCard/ActivityWeeklyCard/ActivityWeeklyCard';
+import AddActivityModal from '@/components/Modals/AddActivityModal/AddActivityModal';
 import RecordList from '../../components/RecordList/RecordList';
 
-type ActivityRecord = { id: string; date: string; duration: number; intensity: string };
+type ActivityRecord = { id: string; date: string; duration: number; intensity?: string };
 
 const ActivityPage = () => {
   const [records, setRecords] = useState<ActivityRecord[]>([]);
+  const [addOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
-    // Try to fetch from backend; if it fails, use sample data
     const load = async () => {
       try {
         const token = localStorage.getItem('token') || '';
-        const res = await fetch('/activity/list', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        const res = await fetch('/activity/list', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (!res.ok) throw new Error('no backend');
         const data = await res.json();
         setRecords(data || []);
@@ -27,28 +31,42 @@ const ActivityPage = () => {
     load();
   }, []);
 
-  const totalSessions = records.length;
-  const totalDuration = records.reduce((s, r) => s + (r.duration || 0), 0);
+  const totalMinutes = records.reduce((s, r) => s + (r.duration || 0), 0);
 
   return (
-    <Stack gap="md">
-      <Grid>
-        <Grid.Col span={4}>
-          <InfoCard title="Sessions"subtitle="Total sessions" icon={<span>🏃</span>} />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <InfoCard title="Total minutes"subtitle="All time" icon={<span>⏱️</span>} />
-        </Grid.Col>
-      </Grid>
-
+    <Group gap="md" align="stretch" justify="start">
+      <ActivityProgressCard
+        calories={Math.round(totalMinutes * 5)}
+        caloriesGoal={600}
+        steps={0}
+        durationMinutes={totalMinutes}
+      />
+      <ActivityWeeklyCard data={records.slice(0, 7).map((r) => r.duration)} />
       <RecordList
         title="Activity Records"
         records={records as any}
         fields={['date', 'duration', 'intensity']}
         onEdit={(r) => console.log('edit', r)}
         onDelete={(r) => console.log('delete', r)}
+        style={{ width: '100%' }}
+        onAddClick={() => setAddOpen(true)}
       />
-    </Stack>
+
+      <AddActivityModal
+        opened={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdd={async ({ duration, time, intensity }) => {
+          const rec: ActivityRecord = {
+            id: String(Date.now()),
+            date: time.split('T')[0],
+            duration,
+            intensity,
+          };
+          setRecords((s) => [rec, ...s]);
+          setAddOpen(false);
+        }}
+      />
+    </Group>
   );
 };
 

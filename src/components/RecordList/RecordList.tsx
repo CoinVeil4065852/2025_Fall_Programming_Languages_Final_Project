@@ -1,41 +1,59 @@
-import React from 'react';
-import { Table, Group, Button, Text, ScrollArea, Stack } from '@mantine/core';
+import { Button, Group, ScrollArea, Stack, Table, Text } from '@mantine/core';
+import InfoCard, { InfoCardProps } from '../InfoCard/InfoCard';
 
 type RecordItem = { id: string; [key: string]: any };
 
-type Props = {
+type RecordListProps = Omit<InfoCardProps, 'children'> & {
   title?: string;
   records: RecordItem[];
   fields?: string[]; // keys to show in order
   onEdit?: (r: RecordItem) => void;
   onDelete?: (r: RecordItem) => void;
+  onAddClick?: () => void;
 };
 
-const RecordList = ({ title, records, fields, onEdit, onDelete }: Props) => {
+const RecordList = ({
+  title,
+  records,
+  fields,
+  onEdit,
+  onDelete,
+  onAddClick,
+  ...infoCardProps
+}: RecordListProps) => {
   const keys = fields ?? (records[0] ? Object.keys(records[0]).filter((k) => k !== 'id') : []);
 
   return (
-    <div style={{ width: '100%' }}>
-      {title ? <Text fw={700} mb="xs">{title}</Text> : null}
+    <InfoCard
+      title={title}
+      {...infoCardProps}
+      rightHeader={
+        onAddClick ? (
+          <Button size="xs" onClick={onAddClick}>
+            Add
+          </Button>
+        ) : undefined
+      }
+    >
       <ScrollArea style={{ height: 360 }}>
         <Table verticalSpacing="sm" highlightOnHover>
-          <thead>
-            <tr>
+          <Table.Thead>
+            <Table.Tr>
               {keys.map((k) => (
-                <th key={k}>{k}</th>
+                <Table.Th key={k}>{k}</Table.Th>
               ))}
-              <th />
-            </tr>
-          </thead>
-          <tbody>
+              <Table.Th />
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {records.map((r) => (
-              <tr key={r.id}>
+              <Table.Tr key={r.id}>
                 {keys.map((k) => (
-                  <td key={k}>
+                  <Table.Td key={k}>
                     <Text size="sm">{String(r[k] ?? '')}</Text>
-                  </td>
+                  </Table.Td>
                 ))}
-                <td>
+                <Table.Td>
                   <Group gap={6} justify="right">
                     {onEdit ? (
                       <Button size="xs" variant="outline" onClick={() => onEdit(r)}>
@@ -48,19 +66,19 @@ const RecordList = ({ title, records, fields, onEdit, onDelete }: Props) => {
                       </Button>
                     ) : null}
                   </Group>
-                </td>
-              </tr>
+                </Table.Td>
+              </Table.Tr>
             ))}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </ScrollArea>
       {records.length === 0 ? (
         <Stack align="center" gap="xs" mt="md">
-          <Text color="dimmed">No records yet.</Text>
+          <Text c="dimmed">No records yet.</Text>
         </Stack>
       ) : null}
-    </div>
+    </InfoCard>
   );
-}
+};
 
 export default RecordList;

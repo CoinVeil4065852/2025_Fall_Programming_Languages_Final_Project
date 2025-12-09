@@ -1,13 +1,12 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import DashboardPage from './pages/Dashboard.page';
+import ActivityPage from './pages/DashboardSubpages/Activity.page';
+import CustomCategoryPage from './pages/DashboardSubpages/CustomCategory.page';
+import OverviewPage from './pages/DashboardSubpages/Overview.page';
+import SleepPage from './pages/DashboardSubpages/Sleep.page';
+import WaterPage from './pages/DashboardSubpages/Water.page';
 import LoginPage from './pages/Login.page';
 import RegisterPage from './pages/Register.page';
-import DashboardPage from './pages/Dashboard.page';
-import OverviewPage from './pages/DashboardSubpages/Overview.page';
-
-import WaterPage from './pages/DashboardSubpages/Water.page';
-import ActivityPage from './pages/DashboardSubpages/Activity.page';
-import SleepPage from './pages/DashboardSubpages/Sleep.page';
-import CustomCategoryPage from './pages/DashboardSubpages/CustomCategory.page';
 
 const router = createBrowserRouter([
   {
@@ -38,4 +37,4 @@ const router = createBrowserRouter([
 
 export const Router = () => {
   return <RouterProvider router={router} />;
-}
+};
