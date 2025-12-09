@@ -122,13 +122,17 @@ const WaterProgressCard: React.FC<Props> = ({
           <Text size="md" c="dimmed">
             {remainingMl} {t('ml_remaining')}
           </Text>
-          <Button variant="light" size="md" onClick={onAdd250Click}>
-            {t('add_250_ml')}
-          </Button>
+          {onAdd250Click ? (
+            <Button variant="light" size="md" onClick={onAdd250Click}>
+              {t('add_250_ml')}
+            </Button>
+          ) : null}
 
-          <Button variant="light" size="md" onClick={onAddClick}>
-            {t('add_water')}
-          </Button>
+          {onAddClick ? (
+            <Button variant="light" size="md" onClick={onAddClick}>
+              {t('add_water')}
+            </Button>
+          ) : null}
         </Stack>
         <Box>
           <WaterTankSvg percentage={percent} width={140} height={180} />

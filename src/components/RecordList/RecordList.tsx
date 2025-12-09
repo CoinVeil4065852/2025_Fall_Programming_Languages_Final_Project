@@ -7,23 +7,14 @@ type RecordItem = { id: string; [key: string]: any };
 type RecordListProps = Omit<InfoCardProps, 'children'> & {
   title?: string;
   records: RecordItem[];
-  fields?: string[]; // keys to show in order
+ 
   onEdit?: (r: RecordItem) => void;
   onDelete?: (r: RecordItem) => void;
   onAddClick?: () => void;
 };
 
-const RecordList = ({
-  title,
-  records,
-  fields,
-  onEdit,
-  onDelete,
-  onAddClick,
-  ...infoCardProps
-}: RecordListProps) => {
-  const keys = fields ?? (records[0] ? Object.keys(records[0]).filter((k) => k !== 'id') : []);
-
+const RecordList = ({ title, records, onEdit, onDelete, onAddClick, ...infoCardProps }: RecordListProps) => {
+  const keys: string[] = records[0] ? Object.keys(records[0]).filter((k) => k !== 'id') : [];
   const { t } = useTranslation();
 
   return (
@@ -69,22 +60,10 @@ const RecordList = ({
               {records.map((r) => (
                 <Table.Tr key={r.id}>
                   {keys.map((k) => {
-                    let value: any = r[k];
-                    // If the record contains a ISO datetime, derive date/time for display
-                    if ((k === 'date' || k === 'time') && r.datetime) {
-                      try {
-                        const iso = String(r.datetime);
-                        const [d, t] = iso.split('T');
-                        if (k === 'date') value = d ?? '';
-                        else value = (t || '').slice(0, 5); // HH:MM
-                      } catch (e) {
-                        // fallback to existing field
-                        value = r[k] ?? '';
-                      }
-                    }
+                    const value: any = r[k] ?? '';
                     return (
                       <Table.Td key={k}>
-                        <Text size="sm">{String(value ?? '')}</Text>
+                        <Text size="sm">{String(value)}</Text>
                       </Table.Td>
                     );
                   })}

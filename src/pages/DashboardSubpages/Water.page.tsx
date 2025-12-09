@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Group, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+import { Group, Text } from '@mantine/core';
+import { useAppData } from '@/AppDataContext';
 import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
 import WaterWeeklyCard from '@/components/InfoCard/WaterWeeklyCard/WaterWeeklyCard';
-import RecordList from '../../components/RecordList/RecordList';
 import AddWaterModal from '@/components/Modals/AddWaterModal/AddWaterModal';
-import { useAppData } from '@/AppDataContext';
+import RecordList from '../../components/RecordList/RecordList';
 
 type UiWaterRecord = { id: string; date: string; time?: string; amountMl: number };
 
@@ -21,8 +21,8 @@ const WaterPage = () => {
 
   const uiRecords: UiWaterRecord[] = water.map((rr: any) => ({
     id: String(rr.id ?? ''),
-    date: rr.date,
-    time: rr.datetime ? (rr.datetime.split('T')[1] ?? '') : '',
+    date: rr.datetime ? String(rr.datetime).split('T')[0] : '',
+    time: rr.datetime ? (String(rr.datetime).split('T')[1] ?? '') : '',
     amountMl: rr.amountMl ?? rr.amount ?? 0,
   }));
 
@@ -47,14 +47,22 @@ const WaterPage = () => {
 
   return (
     <Group gap="md" justify="start" align="stretch">
-      <WaterProgressCard currentMl={total} goalMl={2000} onAddClick={() => setAddOpen(true)} onAdd250Click={onAdd250Click} />
-      {error && <Text c="red" size="sm">{error}</Text>}
-        <WaterWeeklyCard data={uiRecords.slice(0, 7).map((r) => r.amountMl)} />
+      <WaterProgressCard
+        currentMl={total}
+        goalMl={2000}
+        onAddClick={() => setAddOpen(true)}
+        onAdd250Click={onAdd250Click}
+      />
+      {error && (
+        <Text c="red" size="sm">
+          {error}
+        </Text>
+      )}
+      <WaterWeeklyCard data={uiRecords.slice(0, 7).map((r) => r.amountMl)} />
 
-        <RecordList
+      <RecordList
         title={t('water_records')}
         records={uiRecords as any}
-        fields={['date', 'time', 'amountMl']}
         onEdit={(r) => {
           setEditItem({ id: r.id, date: r.date, time: r.time, amountMl: r.amountMl });
           setAddOpen(true);
@@ -82,7 +90,12 @@ const WaterPage = () => {
         }}
         initialValues={
           editItem
-            ? { amount: editItem.amountMl, time: editItem.time ? `${editItem.date}T${editItem.time}` : `${editItem.date}T00:00` }
+            ? {
+                amount: editItem.amountMl,
+                time: editItem.time
+                  ? `${editItem.date}T${editItem.time}`
+                  : `${editItem.date}T00:00`,
+              }
             : undefined
         }
         onAdd={async ({ amount, time }) => {

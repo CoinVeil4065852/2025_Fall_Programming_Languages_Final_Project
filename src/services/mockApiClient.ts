@@ -14,8 +14,8 @@ const db: {
   customData?: Record<string, Array<CustomItem>>;
 } = {
   users: [
-    { id: '1', username: 'alice', age: 30, weight: 60, height: 165, gender: 'F', password: 'password' },
-    { id: '2', username: 'bob', age: 28, weight: 75, height: 180, gender: 'M', password: 'password' },
+    { id: '1', username: 'alice', age: 30, weight: 60, height: 165, gender: 'female', password: 'password' },
+    { id: '2', username: 'bob', age: 28, weight: 75, height: 180, gender: 'male', password: 'password' },
   ],
   water: {},
   sleep: {},
@@ -46,7 +46,7 @@ export const mockApiClient: ApiClient = {
     if (!user || creds.password !== 'password') {
       throw new Error('Invalid username or password (mock)');
     }
-    return { token: tokenFor(user.id), user: { ...user } } as AuthResponse;
+    return { token: tokenFor(user.id) } as AuthResponse;
   },
 
   async register(data) {
@@ -63,7 +63,7 @@ export const mockApiClient: ApiClient = {
       password: data.password,
     };
     db.users.push(newUser);
-    return { token: tokenFor(newUser.id), user: { ...newUser } } as AuthResponse;
+    return { token: tokenFor(newUser.id) } as AuthResponse;
   },
 
   async getProfile(token) {
@@ -92,8 +92,7 @@ export const mockApiClient: ApiClient = {
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.water[uid] = db.water[uid] || [];
-    const date = (datetime || '').split('T')[0] || '';
-    const rec: WaterRecord = { id: String(nextRecId++), date, datetime, amountMl } as any;
+    const rec: WaterRecord = { id: String(nextRecId++), datetime, amountMl } as any;
     db.water[uid].push(rec);
     return rec;
   },
@@ -105,17 +104,6 @@ export const mockApiClient: ApiClient = {
     return (db.water[uid] || []).slice();
   },
 
-  async getWeeklyAverageWater(token) {
-    await delay(120);
-    const uid = userIdFromToken(token);
-    if (!uid) throw new Error('Invalid token (mock)');
-    const recs = db.water[uid] || [];
-    if (!recs.length) return 0;
-    // naive average over all records as a stand-in for weekly average
-    const total = recs.reduce((s, r) => s + r.amountMl, 0);
-    return Math.round((total / recs.length) * 10) / 10;
-  },
-
   async updateWater(token, id, datetime, amountMl) {
     await delay(80);
     const uid = userIdFromToken(token);
@@ -123,8 +111,7 @@ export const mockApiClient: ApiClient = {
     db.water[uid] = db.water[uid] || [];
     const idx = db.water[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Record not found (mock)');
-    const date = (datetime || '').split('T')[0] || '';
-    db.water[uid][idx] = { id, date, datetime, amountMl } as any;
+    db.water[uid][idx] = { id, datetime, amountMl } as any;
   },
 
   async deleteWater(token, id) {
@@ -134,29 +121,15 @@ export const mockApiClient: ApiClient = {
     db.water[uid] = (db.water[uid] || []).filter((r) => r.id !== id);
   },
 
-  async isWaterEnough(token, goalMl) {
-    const avg = await this.getWeeklyAverageWater(token);
-    return avg >= goalMl;
-  },
 
   async addSleep(token, datetime, hours) {
     await delay(80);
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.sleep[uid] = db.sleep[uid] || [];
-    const date = (datetime || '').split('T')[0] || '';
-    const rec: SleepRecord = { id: String(nextRecId++), date, datetime, hours } as any;
+    const rec: SleepRecord = { id: String(nextRecId++), datetime, hours } as any;
     db.sleep[uid].push(rec);
     return rec;
-  },
-  async getLastSleepHours(token) {
-    await delay(100);
-    const uid = userIdFromToken(token);
-    if (!uid) throw new Error('Invalid token (mock)');
-    const recs = db.sleep[uid] || [];
-    if (!recs.length) return 0;
-    const last = recs[recs.length - 1];
-    return last.hours;
   },
 
   async getAllSleep(token) {
@@ -173,8 +146,7 @@ export const mockApiClient: ApiClient = {
     db.sleep[uid] = db.sleep[uid] || [];
     const idx = db.sleep[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Sleep record not found (mock)');
-    const date = (datetime || '').split('T')[0] || '';
-    db.sleep[uid][idx] = { id, date, datetime, hours } as any;
+    db.sleep[uid][idx] = { id, datetime, hours } as any;
   },
 
   async deleteSleep(token, id) {
@@ -184,18 +156,13 @@ export const mockApiClient: ApiClient = {
     db.sleep[uid] = (db.sleep[uid] || []).filter((r) => r.id !== id);
   },
 
-  async isSleepEnough(token, minHours) {
-    const last = await this.getLastSleepHours(token);
-    return last >= minHours;
-  },
 
   async addActivity(token, datetime, minutes, intensity) {
     await delay(80);
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.activity[uid] = db.activity[uid] || [];
-    const date = (datetime || '').split('T')[0] || '';
-    const rec: ActivityRecord = { id: String(nextRecId++), date, datetime, minutes, intensity } as any;
+    const rec: ActivityRecord = { id: String(nextRecId++), datetime, minutes, intensity } as any;
     db.activity[uid].push(rec);
     return rec;
   },
@@ -214,8 +181,7 @@ export const mockApiClient: ApiClient = {
     db.activity[uid] = db.activity[uid] || [];
     const idx = db.activity[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Activity record not found (mock)');
-    const date = (datetime || '').split('T')[0] || '';
-    db.activity[uid][idx] = { id, date, datetime, minutes, intensity } as any;
+    db.activity[uid][idx] = { id, datetime, minutes, intensity } as any;
   },
 
   async deleteActivity(token, id) {

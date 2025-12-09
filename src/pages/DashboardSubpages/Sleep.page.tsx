@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Group, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import RecordList from '../../components/RecordList/RecordList';
-import AddSleepModal from '@/components/Modals/AddSleepModal/AddSleepModal';
+import { Group, Text } from '@mantine/core';
+import { useAppData } from '@/AppDataContext';
 import SleepProgressCard from '@/components/InfoCard/SleepProgressCard/SleepProgressCard';
 import SleepWeeklyCard from '@/components/InfoCard/SleepWeeklyCard/SleepWeeklyCard';
-import { useAppData } from '@/AppDataContext';
+import AddSleepModal from '@/components/Modals/AddSleepModal/AddSleepModal';
+import RecordList from '../../components/RecordList/RecordList';
 
 type SleepRecord = { id: string; date: string; time?: string; hours: number };
 
@@ -21,23 +21,28 @@ const SleepPage = () => {
 
   const recordsFromCtx = sleep.map((rr: any) => ({
     id: String(rr.id ?? ''),
-    date: rr.date,
-    time: rr.datetime ? (rr.datetime.split('T')[1] ?? '').slice(0, 5) : '',
+    date: rr.datetime ? String(rr.datetime).split('T')[0] : '',
+    time: rr.datetime ? (String(rr.datetime).split('T')[1] ?? '').slice(0, 5) : '',
     hours: rr.hours,
   }));
 
-  const avg = recordsFromCtx.length ? (recordsFromCtx.reduce((s, r) => s + r.hours, 0) / recordsFromCtx.length).toFixed(1) : '—';
+  const avg = recordsFromCtx.length
+    ? (recordsFromCtx.reduce((s, r) => s + r.hours, 0) / recordsFromCtx.length).toFixed(1)
+    : '—';
 
   return (
     <Group gap="md" justify="start" align="stretch">
       <SleepProgressCard currentHours={Number(avg === '—' ? 0 : avg)} goalHours={8} />
-      {error && <Text c="red" size="sm">{error}</Text>}
+      {error && (
+        <Text c="red" size="sm">
+          {error}
+        </Text>
+      )}
       <SleepWeeklyCard data={recordsFromCtx.slice(0, 7).map((r) => r.hours)} />
 
       <RecordList
         title={t('sleep_records')}
         records={recordsFromCtx as any}
-        fields={['date', 'time', 'hours']}
         onEdit={(r) => {
           setEditItem({ id: r.id, date: r.date, time: r.time, hours: r.hours });
           setAddOpen(true);
@@ -62,7 +67,16 @@ const SleepPage = () => {
           setAddOpen(false);
           setEditItem(null);
         }}
-        initialValues={editItem ? { hours: editItem.hours, time: editItem.time ? `${editItem.date}T${editItem.time}` : `${editItem.date}T00:00` } : undefined}
+        initialValues={
+          editItem
+            ? {
+                hours: editItem.hours,
+                time: editItem.time
+                  ? `${editItem.date}T${editItem.time}`
+                  : `${editItem.date}T00:00`,
+              }
+            : undefined
+        }
         onAdd={async ({ hours, time }) => {
           try {
             if (editItem) {
@@ -83,4 +97,3 @@ const SleepPage = () => {
 };
 
 export default SleepPage;
- 

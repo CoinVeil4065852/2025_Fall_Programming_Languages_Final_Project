@@ -20,151 +20,118 @@ async function req(path: string, opts: RequestInit = {}) {
 
 export const remoteApiClient: ApiClient = {
   async login(creds) {
-    const body = new URLSearchParams();
-    body.set('name', creds.username);
-    body.set('password', creds.password);
-    const json = await req('/login', { method: 'POST', body });
-    // backend returns { status: 'ok', token: '...' }
+    const body = JSON.stringify({ name: creds.username, password: creds.password });
+    const json = await req('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
     const token: string = json?.token;
     if (!token) throw new Error('Login failed: no token returned');
-    // fetch profile after login
-    const user = await req('/user/profile', { headers: { 'X-Auth-Token': token } });
-    return { token, user } as AuthResponse;
+    return { token } as AuthResponse;
   },
 
   async register(data) {
-    const body = new URLSearchParams();
-    body.set('name', data.username);
-    body.set('password', data.password);
-    if (data.age != null) body.set('age', String(data.age));
-    if (data.weight != null) body.set('weightKg', String(data.weight));
-    if (data.height != null) body.set('heightM', String(data.height));
-    const json = await req('/register', { method: 'POST', body });
-    // backend returns { status: 'ok', token: '...' }
+    const payload: any = { name: data.username, password: data.password };
+    if (data.age != null) payload.age = data.age;
+    if (data.weight != null) payload.weightKg = data.weight;
+    if (data.height != null) payload.heightM = data.height;
+    if (data.gender != null) payload.gender = data.gender;
+    const json = await req('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const token: string = json?.token;
     if (!token) throw new Error('Register failed: no token returned');
-    // fetch profile after register
-    const user = await req('/user/profile', { headers: { 'X-Auth-Token': token } });
-    return { token, user } as AuthResponse;
+    return { token } as AuthResponse;
   },
 
   async getProfile(token) {
-    const json = await req('/user/profile', { headers: { 'X-Auth-Token': token } });
+    const json = await req('/user/profile', { headers: { Authorization: `Bearer ${token}` } });
     return json as User;
   },
 
   async getBMI(token) {
-    const json = await req('/user/bmi', { headers: { 'X-Auth-Token': token } });
+    const json = await req('/user/bmi', { headers: { Authorization: `Bearer ${token}` } });
     return json.bmi as number;
   },
 
   async addWater(token, datetime, amountMl) {
-    const date = (datetime || '').split('T')[0] || '';
-    const body = JSON.stringify({ date, datetime, amountMl });
-    const json = await req('/water/add', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body });
-    return (json && json.item) as WaterRecord;
+    const body = JSON.stringify({ datetime, amountMl });
+    const json = await req('/waters', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body });
+    return json as WaterRecord;
   },
 
   async getAllWater(token) {
-    const json = await req('/water/list', { headers: { 'X-Auth-Token': token } });
-    return (json.records || []) as WaterRecord[];
+    const json = await req('/waters', { headers: { Authorization: `Bearer ${token}` } });
+    return (json || []) as WaterRecord[];
   },
 
   async updateWater(token, id, datetime, amountMl) {
-    const date = (datetime || '').split('T')[0] || '';
-    const body = JSON.stringify({ date, datetime, amountMl });
-    await req(`/water/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'X-Auth-Token': token, 'Content-Type': 'application/json' }, body });
+    const body = JSON.stringify({ datetime, amountMl });
+    await req(`/waters/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
   },
 
   async deleteWater(token, id) {
-    await req(`/water/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'X-Auth-Token': token } });
+    await req(`/waters/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
   },
 
-  async getWeeklyAverageWater(token) {
-    const json = await req('/water/weekly', { headers: { 'X-Auth-Token': token } });
-    return json.averageMl as number;
-  },
-
-  async isWaterEnough(token, goalMl) {
-    const json = await req(`/water/weekly?goalMl=${encodeURIComponent(String(goalMl))}`, { headers: { 'X-Auth-Token': token } });
-    return !!json.enough;
-  },
 
   async addSleep(token, datetime, hours) {
-    const date = (datetime || '').split('T')[0] || '';
-    const body = JSON.stringify({ date, datetime, hours });
-    const json = await req('/sleep/add', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body });
-    return (json && json.item) as SleepRecord;
-  },
-
-  async getLastSleepHours(token) {
-    const json = await req('/sleep/last', { headers: { 'X-Auth-Token': token } });
-    return json.lastHours as number;
+    const body = JSON.stringify({ datetime, hours });
+    const json = await req('/sleeps', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body });
+    return json as SleepRecord;
   },
 
   async getAllSleep(token) {
-    const json = await req('/sleep/list', { headers: { 'X-Auth-Token': token } });
-    return (json.records || []) as SleepRecord[];
-  },
-
-  async isSleepEnough(token, minHours) {
-    const json = await req(`/sleep/last?minHrs=${encodeURIComponent(String(minHours))}`, { headers: { 'X-Auth-Token': token } });
-    return !!json.enough;
+    const json = await req('/sleeps', { headers: { Authorization: `Bearer ${token}` } });
+    return (json || []) as SleepRecord[];
   },
 
   async updateSleep(token, id, datetime, hours) {
-    const date = (datetime || '').split('T')[0] || '';
-    await req(`/sleep/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'X-Auth-Token': token, 'Content-Type': 'application/json' }, body: JSON.stringify({ date, datetime, hours }) });
+    await req(`/sleeps/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ datetime, hours }) });
   },
 
   async addActivity(token, datetime, minutes, intensity) {
-    const date = (datetime || '').split('T')[0] || '';
-    const body = JSON.stringify({ date, datetime, minutes, intensity });
-    const json = await req('/activity/add', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body });
-    return (json && json.item) as ActivityRecord;
+    const body = JSON.stringify({ datetime, minutes, intensity });
+    const json = await req('/activities', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body });
+    return json as ActivityRecord;
   },
 
   async getAllActivity(token) {
-    const json = await req('/activity/list', { headers: { 'X-Auth-Token': token } });
-    return (json.records || []) as ActivityRecord[];
+    const json = await req('/activities', { headers: { Authorization: `Bearer ${token}` } });
+    return (json || []) as ActivityRecord[];
   },
 
   async updateActivity(token, id, datetime, minutes, intensity) {
-    const date = (datetime || '').split('T')[0] || '';
-    const body = JSON.stringify({ date, datetime, minutes, intensity });
-    await req(`/activity/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'X-Auth-Token': token, 'Content-Type': 'application/json' }, body });
+    const body = JSON.stringify({ datetime, minutes, intensity });
+    await req(`/activities/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
   },
 
   async deleteActivity(token, id) {
-    await req(`/activity/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'X-Auth-Token': token } });
+    await req(`/activities/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
   },
 
   async sortActivityByDuration(token) {
-    await req('/activity/list?sortBy=duration', { headers: { 'X-Auth-Token': token } });
+    await req('/activities?sortBy=duration', { headers: { Authorization: `Bearer ${token}` } });
   },
   async getCustomCategories(token?) {
-    const json = await req('/custom/category/list', { headers: token ? { 'X-Auth-Token': token } : {} });
+    const json = await req('/category/list', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    // server may return array of { id, categoryName } or array of strings; normalize to string[]
+    if (Array.isArray(json) && json.length && typeof json[0] === 'object') return (json as any[]).map((c) => c.categoryName) as string[];
     return (json || []) as string[];
   },
   async getCustomData(categoryName, token?) {
-    const json = await req(`/custom/data/list?categoryName=${encodeURIComponent(categoryName)}`, { headers: token ? { 'X-Auth-Token': token } : {} });
+    const json = await req(`/category/${encodeURIComponent(categoryName)}/list`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     return (json || []) as CustomItem[];
   },
   async createCustomCategory(categoryName, token?) {
-    await req('/custom/category/create', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'X-Auth-Token': token } : {}) }, body: JSON.stringify({ categoryName }) });
+    await req('/category/create', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ categoryName }) });
   },
   async addCustomItem(token, categoryName, datetime, note) {
-    const body = JSON.stringify({ categoryName, datetime, note });
-    const json = await req('/custom/data/add', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { 'X-Auth-Token': token } : {}) }, body });
-    // expect backend to return created item
-    return (json && json.item) as CustomItem;
+    const body = JSON.stringify({ datetime, note });
+    const json = await req(`/category/${encodeURIComponent(categoryName)}/add`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
+    return json as CustomItem;
   },
   async updateCustomItem(token, categoryName, itemId, datetime, note) {
-    const body = JSON.stringify({ categoryName, datetime, note });
-    await req(`/custom/data/${encodeURIComponent(itemId)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(token ? { 'X-Auth-Token': token } : {}) }, body });
+    const body = JSON.stringify({ datetime, note });
+    await req(`/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
   },
   async deleteCustomItem(token, categoryName, itemId) {
-    await req(`/custom/data/${encodeURIComponent(itemId)}?categoryName=${encodeURIComponent(categoryName)}`, { method: 'DELETE', headers: token ? { 'X-Auth-Token': token } : {} });
+    await req(`/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(itemId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} });
   },
 };
 

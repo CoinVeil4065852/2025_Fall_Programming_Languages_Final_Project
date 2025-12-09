@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Paper, TextInput, PasswordInput, Checkbox, Button, Stack, Title, Text, Center, Box, LoadingOverlay, Anchor, Group } from '@mantine/core';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { login as authLogin } from '../../services/auth';
+import { useAppData } from '../../AppDataContext';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@mantine/form';
 
@@ -18,14 +19,15 @@ const LoginForm = () => {
     },
 
     validate: {
-      username: (value) => value.trim() ? null : 'Invalid username',
-      password: (value) => value.trim() ? null : 'Invalid password',
+      username: (value) => value.trim() ? null : t('invalid_username'),
+      password: (value) => value.trim() ? null : t('invalid_password'),
     },
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const { refreshAll } = useAppData();
 
   const handleSubmit = form.onSubmit(async (values) => {
     if (loading) return;
@@ -40,11 +42,13 @@ const LoginForm = () => {
       if (result.token) {
         const storage = remember ? localStorage : sessionStorage;
         storage.setItem('authToken', result.token);
+          // refresh app data (profile, records)
+          try { await refreshAll(); } catch (e) { /* ignore */ }
       }
       // Navigate to home after successful login
       navigate('/dashboard', { replace: true });
     } catch (err: any) {
-      setError(err?.message ?? 'Login failed');
+      setError(err?.message ?? t('login_failed'));
     } finally {
       setLoading(false);
     }

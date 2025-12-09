@@ -1,0 +1,124 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Badge, Center, Group, Stack, Text ,SimpleGrid, Avatar, Divider, ThemeIcon} from '@mantine/core';
+import InfoCard from '@/components/InfoCard/InfoCard';
+import { IconActivity, IconRuler, IconScale, IconUser } from '@tabler/icons-react';
+
+type Props = {
+  profile?: any | null;
+  error?: string | null;
+};
+
+const computeBmi = (weight?: number, height?: number) => {
+  if (!weight || !height) return undefined;
+  const hMeters = height > 3 ? height / 100 : height;
+  if (hMeters <= 0) return undefined;
+  const bmi = weight / (hMeters * hMeters);
+  return Math.round(bmi * 10) / 10;
+};
+
+const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
+  const { t } = useTranslation();
+
+  const bmi = computeBmi(profile?.weight, profile?.height);
+
+  const bmiLabel = (v?: number) => {
+    if (!v) return { label: '—', color: 'gray' };
+    if (v < 18.5) return { label: t('bmi_underweight'), color: 'blue' };
+    if (v < 25) return { label: t('bmi_normal'), color: 'green' };
+    if (v < 30) return { label: t('bmi_overweight'), color: 'yellow' };
+    return { label: t('bmi_obese'), color: 'red' };
+  };
+
+  const bmiInfo = bmiLabel(bmi);
+
+  return (
+    <InfoCard title={t('user_metrics')}>
+      {profile ? (
+        <Stack gap="lg">
+          {/* 1. User Header Section */}
+          <Group align="center">
+            <Avatar size="lg" radius="xl" color="blue" variant="light">
+              {profile?.username?.[0]?.toUpperCase() ?? <IconUser size={24} />}
+            </Avatar>
+
+            <div style={{ flex: 1 }}>
+              <Text fw={700} size="lg" lh={1.2}>
+                {profile?.username ?? '—'}
+              </Text>
+              <Text size="xs" c="dimmed" tt="uppercase" fw={600} mt={2}>
+                {profile?.gender ? String(profile.gender) : '—'}
+              </Text>
+            </div>
+
+            {/* Optional: Status Badge in top right */}
+            {bmi && (
+              <Badge variant="light" color={bmiInfo.color as any} size="lg">
+                {bmiInfo.label}
+              </Badge>
+            )}
+          </Group>
+
+          <Divider />
+
+          {/* 2. Metrics Grid Section */}
+          <SimpleGrid cols={3} spacing="xs" verticalSpacing="xs">
+            {/* Weight */}
+            <Stack gap={4} align="center">
+              <ThemeIcon variant="light" color="gray" radius="xl" size="md">
+                <IconScale size={18} />
+              </ThemeIcon>
+              <Text size="xs" c="dimmed" mt={4}>
+                {t('weight')}
+              </Text>
+              <Text fw={700} size="lg">
+                {profile?.weight ? profile.weight : '—'}{' '}
+                <Text span size="sm" c="dimmed" fw={400}>
+                  {t('kg')}
+                </Text>
+              </Text>
+            </Stack>
+
+            {/* Height */}
+            <Stack gap={4} align="center">
+              <ThemeIcon variant="light" color="gray" radius="xl" size="md">
+                <IconRuler size={18} />
+              </ThemeIcon>
+              <Text size="xs" c="dimmed" mt={4}>
+                {t('height')}
+              </Text>
+              <Text fw={700} size="lg">
+                {profile?.height ? (profile.height > 3 ? profile.height : profile.height) : '—'}
+                <Text span size="sm" c="dimmed" fw={400}>
+                  {profile?.height ? (profile.height > 3 ? t('cm') : t('m')) : ''}
+                </Text>
+              </Text>
+            </Stack>
+
+            {/* BMI Value */}
+            <Stack gap={4} align="center">
+              <ThemeIcon variant="light" color={bmiInfo.color as any} radius="xl" size="md">
+                <IconActivity size={18} />
+              </ThemeIcon>
+              <Text size="xs" c="dimmed" mt={4}>
+                {t('bmi')}
+              </Text>
+              <Text fw={700} size="lg" c={bmiInfo.color as any}>
+                {bmi ?? '—'}
+              </Text>
+            </Stack>
+          </SimpleGrid>
+        </Stack>
+      ) : (
+        <Center py="xl">
+          <Text c="dimmed" size="sm">
+            {t('no_profile_loaded')}
+            {error ? `: ${error}` : ''}
+          </Text>
+        </Center>
+      )}
+    </InfoCard>
+  );
+};
+
+export default UserMetricsCard;

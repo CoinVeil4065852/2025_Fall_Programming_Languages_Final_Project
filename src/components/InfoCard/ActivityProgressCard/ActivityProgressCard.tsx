@@ -1,6 +1,7 @@
 import { IconClock, IconFlame, IconShoe, IconWalk } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Card, Center, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
+import { useAppData } from '../../../AppDataContext';
 import InfoCard from '../InfoCard';
 
 const ActivityGauge = ({
@@ -110,48 +111,71 @@ type Props = {
 };
 
 const DailyActivityCard: React.FC<Props> = ({
-  calories = 450,
+  calories,
   caloriesGoal = 600,
   steps = 5432,
   durationMinutes = 45,
 }) => {
   const { t } = useTranslation();
+  const { profile, activity } = useAppData();
+
+  // MET values by intensity mapping (reasonable defaults)
+  const intensityToMET: Record<string, number> = {
+    low: 3.0,
+    medium: 5.0,
+    high: 8.0,
+  };
+
+  // Compute calories burned from individual activity records if explicit `calories` not provided.
+  // Formula used: calories_per_minute = (MET * 3.5 * weight_kg) / 200
+  // Total calories = sum(duration_minutes * calories_per_minute) * ageFactor
+  // We include a mild age adjustment so that older users slightly burn fewer calories
+  const computeCaloriesFromActivities = () => {
+    const w = profile?.weight ?? 70; // kg
+    const age = profile?.age ?? 30;
+    // small age factor: +/- up to ~10% between ages 0..100 (clamped)
+    const ageFactor = Math.max(0.9, Math.min(1.1, 1 - (age - 30) * 0.003));
+
+    if (!activity || activity.length === 0) return 0;
+
+    let total = 0;
+    for (const rec of activity) {
+      const met = intensityToMET[rec.intensity] ?? 4.0;
+      const mins = rec.minutes ?? 0;
+      const kcalPerMin = (met * 3.5 * w) / 200;
+      total += mins * kcalPerMin;
+    }
+    return Math.round(total * ageFactor);
+  };
+
+  const computedCalories = computeCaloriesFromActivities();
+  const caloriesToShow = typeof calories === 'number' ? calories : computedCalories || 450;
+
   return (
     <InfoCard title={t('daily_activity')}>
       <Stack justify="center" align="center" gap={6}>
         <ActivityGauge
-          value={calories}
+          value={caloriesToShow}
           max={caloriesGoal}
           icon={<IconFlame size={24} className="text-rose-500 fill-rose-500" />}
         />
-
         <Group>
-          <Group>
-            <ThemeIcon color="teal" size="sm" radius="full">
-              <IconShoe size={16} />
-            </ThemeIcon>
-            <Text fw={700} size="sm">
-              {steps}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {t('steps')}
-            </Text>
-          </Group>
           <Group>
             <ThemeIcon color="blue" size="sm" radius="full">
               <IconClock size={16} />
             </ThemeIcon>
             <Text fw={700} size="sm">
-              {durationMinutes}m
+              {durationMinutes} {t('minutes')}
             </Text>
             <Text size="xs" c="dimmed">
               {t('duration')}
             </Text>
           </Group>
         </Group>
-
         <Text size="xs" c="dimmed" className="mt-2 text-center">
-          {t('you_hit_percent_of_goal', { percent: Math.round((calories / caloriesGoal) * 100) })}
+          {t('you_hit_percent_of_goal', {
+            percent: Math.round((caloriesToShow / caloriesGoal) * 100),
+          })}
         </Text>
       </Stack>
     </InfoCard>

@@ -9,10 +9,10 @@ export async function login(creds: Credentials) {
 export async function register(data: {
   username: string;
   password: string;
-  age?: number;
-  weight?: number;
-  height?: number;
-  gender?: string;
+  age: number;
+  weight: number;
+  height: number;
+  gender: string;
 }) {
   return api.register(data);
 }

@@ -1,31 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Grid, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import InfoCard from '../../components/InfoCard/InfoCard';
-import SleepProgressCard from '../../components/InfoCard/SleepProgressCard/SleepProgressCard';
-import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
+import { Badge, Grid, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
 import ActivityProgressCard from '@/components/InfoCard/ActivityProgressCard/ActivityProgressCard';
-import { getProfile } from '../../services/auth';
+import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
+import UserMetricsCard from '@/components/UserMetricsCard/UserMetricsCard';
+import { useAppData } from '../../AppDataContext';
+import SleepProgressCard from '../../components/InfoCard/SleepProgressCard/SleepProgressCard';
 
 const OverviewPage = () => {
   const [profile, setProfile] = useState<any | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { profile: appProfile, water, sleep, activity, error } = useAppData();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setError(null);
-        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-        if (!token) return setProfile(null);
-        const p = await getProfile(token);
-        setProfile(p || null);
-      } catch (err: any) {
-        setError(err?.message ?? 'Failed to load profile');
-        setProfile(null);
-      }
-    };
-    load();
-  }, []);
+    setProfile(appProfile || null);
+  }, [appProfile]);
 
   const computeBmi = (weight?: number, height?: number) => {
     if (!weight || !height) return undefined;
@@ -37,6 +25,37 @@ const OverviewPage = () => {
   };
 
   const bmi = computeBmi(profile?.weight, profile?.height);
+
+  // derive card metrics from app data
+  const todayDate = new Date().toISOString().split('T')[0];
+
+  // water: sum amountMl for records where date matches today (or datetime's date)
+  const waterToday = (water || []).reduce((sum, r) => {
+    const d = (r.datetime || '').split('T')[0];
+    return sum + (d === todayDate ? r.amountMl || 0 : 0);
+  }, 0);
+
+  // sleep: average hours over last 7 sleep records (by datetime)
+  const sleepSorted = (sleep || [])
+    .slice()
+    .sort((a, b) => (a.datetime || '').localeCompare(b.datetime || ''));
+  const last7 = sleepSorted.slice(-7);
+  const sleepAvg = last7.length ? last7.reduce((s, r) => s + (r.hours || 0), 0) / last7.length : 0;
+
+  // activity: total minutes today and estimate calories using intensity mapping
+  const intensityFactor: Record<string, number> = { low: 4, moderate: 6, high: 8 };
+  const activityToday = (activity || []).reduce(
+    (acc, r) => {
+      const d = (r.datetime || '').split('T')[0];
+      if (d !== todayDate) return acc;
+      const mins = r.minutes || 0;
+      const factor = intensityFactor[(r.intensity || '').toLowerCase()] || 5;
+      acc.duration += mins;
+      acc.calories += Math.round(mins * factor);
+      return acc;
+    },
+    { duration: 0, calories: 0 }
+  );
 
   const { t } = useTranslation();
 
@@ -52,61 +71,15 @@ const OverviewPage = () => {
 
   return (
     <Group gap="md" justify="start" align="stretch">
-      <InfoCard title={t('user_metrics')}>
-        {profile ? (
-          <Stack justify="space-between" align="center">
-            <Group>
-              <Text style={{ fontWeight: 600 }}>{profile.username}</Text>
-              <Text size="sm" c="dimmed">
-                {profile.gender ? String(profile.gender) : '—'}
-              </Text>
-              <Stack style={{ marginTop: 8 }} gap={16}>
-                <Group>
-                  <Text size="xs" c="dimmed">
-                    Weight
-                  </Text>
-                  <Text style={{ fontWeight: 700 }}>
-                    {profile.weight ? `${profile.weight} kg` : '—'}
-                  </Text>
-                </Group>
-                <Group>
-                  <Text size="xs" c="dimmed">
-                    Height
-                  </Text>
-                  <Text style={{ fontWeight: 700 }}>
-                    {profile.height
-                      ? `${profile.height > 3 ? `${profile.height} cm` : `${profile.height} m`}`
-                      : '—'}
-                  </Text>
-                </Group>
-              </Stack>
-            </Group>
+      <UserMetricsCard profile={profile} error={error} />
 
-            <Group align="center" gap={4}>
-              <RingProgress
-                size={80}
-                thickness={8}
-                sections={[
-                  { value: Math.min(100, ((bmi ?? 0) / 40) * 100), color: bmiInfo.color as any },
-                ]}
-              />
-              <Group>
-                <Text style={{ fontWeight: 700 }}>{bmi ?? '—'}</Text>
-                <Badge color={bmiInfo.color as any} variant="light">
-                  {bmiInfo.label}
-                </Badge>
-              </Group>
-            </Group>
-          </Stack>
-        ) : (
-          <Text c="dimmed">{t('no_profile_loaded')}{error ? `: ${error}` : ''}</Text>
-        )}
-      </InfoCard>
-
-      <SleepProgressCard currentHours={7.2} goalHours={8} />
-      <WaterProgressCard currentMl={1200} goalMl={2000} />
-      <ActivityProgressCard calories={450} caloriesGoal={600} durationMinutes={150} />
-      
+      <SleepProgressCard currentHours={Number((sleepAvg || 0).toFixed(1))} goalHours={8} />
+      <WaterProgressCard currentMl={waterToday} goalMl={2000} />
+      <ActivityProgressCard
+        calories={activityToday.calories}
+        caloriesGoal={600}
+        durationMinutes={activityToday.duration}
+      />
     </Group>
   );
 };

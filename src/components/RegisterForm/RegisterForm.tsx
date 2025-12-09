@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Paper, TextInput, PasswordInput, Button, Stack, Title, Text, Center, Box, LoadingOverlay, Anchor, Group, Select, NumberInput, SimpleGrid } from '@mantine/core';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { register as authRegister } from '../../services/auth';
+import { useAppData } from '../../AppDataContext';
 import { useTranslation } from 'react-i18next';
 import { useForm } from '@mantine/form';
 
@@ -78,8 +79,8 @@ const RegisterForm = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const navigate = useNavigate();
+    const { refreshAll } = useAppData();
 
     const handleSubmit = form.onSubmit(async (values) => {
         if (loading) return;
@@ -89,15 +90,21 @@ const RegisterForm = () => {
 
         setLoading(true);
         try {
-            const toNumber = (v: number | '') => (v === '' || v === null || v === undefined) ? undefined : Number(v);
+            const toNumber = (v: number | '') => Number(v as number);
             const result: LoginResult = await authRegister({
                 username,
                 password,
                 age: toNumber(age),
                 weight: toNumber(weight),
                 height: toNumber(height),
-                gender: gender || undefined,
+                gender: gender as 'male' | 'female' | 'other',
             });
+
+            // store token returned from register and refresh app data
+            if (result.token) {
+                sessionStorage.setItem('authToken', result.token);
+            }
+            try { await refreshAll(); } catch (e) { /* ignore */ }
 
             // Navigate to home after successful registration
             navigate('/', { replace: true });
