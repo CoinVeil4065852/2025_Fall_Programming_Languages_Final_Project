@@ -1,0 +1,17 @@
+{
+  "short_name": "Health Tracker",
+  "name": "Health Tracker Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2ab7a9",
+  "description": "Track activity, sleep, and water intake with a responsive dashboard built with React, Vite and Mantine.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

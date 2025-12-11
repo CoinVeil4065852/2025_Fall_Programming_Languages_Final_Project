@@ -16,8 +16,10 @@ const CustomCategoryPage = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<CustomItem | null>(null);
   const [newCategory, setNewCategory] = useState('');
+  const [createLoading, setCreateLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
+  const [deleteCategoryLoading, setDeleteCategoryLoading] = useState(false);
 
   const { t } = useTranslation();
   const {
@@ -28,6 +30,7 @@ const CustomCategoryPage = () => {
     addCustomItem,
     updateCustomItem,
     deleteCustomItem,
+    deleteCustomCategory,
   } = useAppData();
 
   useEffect(() => {
@@ -42,6 +45,14 @@ const CustomCategoryPage = () => {
     }
   }, [customCategories]);
 
+  // refresh data when a category is selected (including initial mount)
+  useEffect(() => {
+    if (!selectedCategory) return;
+    // refresh data for the selected category when it changes or when component mounts
+    refreshCustomData?.(selectedCategory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
+
   const uiRecords: UiCustomRecord[] = (customData?.[selectedCategory ?? ''] ?? []).map((item) => ({
     id: String(item.id ?? ''),
     date: item.datetime ? String(item.datetime).split('T')[0] : '',
@@ -53,8 +64,14 @@ const CustomCategoryPage = () => {
     if (!newCategory) return;
     try {
       setError(null);
+      setCreateLoading(true);
       if (!createCustomCategory) throw new Error(t('endpoint_not_implemented'));
-      await createCustomCategory(newCategory);
+      const created = await createCustomCategory(newCategory);
+      // if created, select the new category and initialize its list
+      if (created?.id) {
+        setSelected(created.id);
+        await refreshCustomData?.(created.id);
+      }
       setNewCategory('');
       showNotification({ title: t('create'), message: `${newCategory} created`, color: 'green' });
     } catch (err) {
@@ -62,6 +79,28 @@ const CustomCategoryPage = () => {
       setError(msg ?? t('failed_create_category'));
       showNotification({ title: t('failed_create_category'), message: msg, color: 'red' });
       setNewCategory('');
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    if (!selectedCategory) return;
+    const ok = confirm(t('confirm_delete_category') ?? 'Delete this category and all its items?');
+    if (!ok) return;
+    try {
+      setError(null);
+      setDeleteCategoryLoading(true);
+      if (deleteCustomCategory) await deleteCustomCategory(selectedCategory);
+      // after deletion, clear selection; the effect watching customCategories will pick a default
+      setSelected(null);
+      showNotification({ title: t('delete'), message: 'Deleted category', color: 'green' });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg ?? t('failed_delete_custom_category'));
+      showNotification({ title: t('failed_delete_custom_category'), message: msg, color: 'red' });
+    } finally {
+      setDeleteCategoryLoading(false);
     }
   };
 
@@ -85,7 +124,14 @@ const CustomCategoryPage = () => {
               onChange={(e) => setNewCategory(e.currentTarget.value)}
               placeholder={t('new_category_name')}
             />
-            <Button onClick={createCategory}>{t('create')}</Button>
+            <Button onClick={createCategory} loading={createLoading} disabled={createLoading || !newCategory}>
+              {t('create')}
+            </Button>
+            {selectedCategory && (
+              <Button color="red" onClick={handleDeleteCategory} loading={deleteCategoryLoading} disabled={deleteCategoryLoading}>
+                {t('delete')}
+              </Button>
+            )}
           </Group>
         </Grid.Col>
       </Grid>

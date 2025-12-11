@@ -1,6 +1,6 @@
 {
-  "title": "歡迎使用我們的應用程式",
-  "description": "這是一個示範本地化的範例應用程式。",
+  "title": "健康追蹤儀表板",
+  "description": "用來追蹤活動、睡眠與飲水的響應式儀表板。",
   "username": "使用者名稱",
   "username_placeholder": "您的使用者名稱",
   "password": "密碼",

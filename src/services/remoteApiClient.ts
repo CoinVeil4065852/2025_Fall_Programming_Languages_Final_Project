@@ -155,6 +155,13 @@ export const remoteApiClient: ApiClient = {
       body: JSON.stringify({}),
     });
   },
+  async deleteCustomCategory(token, categoryId) {
+    await req(`/category/${encodeURIComponent(categoryId)}`, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+  },
 };
 
 export default remoteApiClient;

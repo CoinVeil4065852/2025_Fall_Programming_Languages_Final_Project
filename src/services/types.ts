@@ -80,6 +80,8 @@ export interface ApiClient {
     note?: string
   ): Promise<CustomItem>;
   deleteCustomItem?(token: string, categoryId: string, itemId: string): Promise<void>;
+  // delete a whole custom category (and all items under it)
+  deleteCustomCategory?(token: string, categoryId: string): Promise<void>;
 }
 
 export default null as unknown as ApiClient;

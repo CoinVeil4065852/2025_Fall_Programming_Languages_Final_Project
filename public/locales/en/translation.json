@@ -1,6 +1,6 @@
 {
-  "title": "Welcome to Our Application",
-  "description": "This is a sample application to demonstrate localization.",
+  "title": "Health Tracker",
+  "description": "A responsive dashboard for tracking activity, sleep, and water intake.",
   "username": "Username",
   "username_placeholder": "Your username",
   "password": "Password",

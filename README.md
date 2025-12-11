@@ -1,4 +1,6 @@
-# Mantine Vite template
+# Health Tracker Dashboard
+
+Health Tracker Dashboard is a demo front-end app for monitoring activity, sleep and water intake. It is built with React, Vite and Mantine and includes a dashboard, charts, localization, and authentication flows for a complete user experience.
 
 ## Features
 
@@ -32,3 +34,9 @@ This template comes with the following features:
 - `storybook` – starts storybook dev server
 - `storybook:build` – build production storybook bundle to `storybook-static`
 - `prettier:write` – formats all files with Prettier
+ 
+## Metadata and SEO
+
+The app's metadata (title, description, Open Graph and Twitter tags) is stored in `index.html`. A Web App Manifest is available at `public/manifest.webmanifest` and the favicon is at `public/favicon.svg`.
+
+To customize the title, description, or social card, update `index.html` accordingly and update the links in `public/manifest.webmanifest` if needed.

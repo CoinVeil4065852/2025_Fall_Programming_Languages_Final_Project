@@ -1,8 +1,9 @@
 {
-  "name": "mantine-vite-template",
+  "name": "health-tracker-dashboard",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Health Tracker Dashboard — monitor activity, sleep, and water intake. Built with React, Vite and Mantine.",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
@@ -18,6 +19,13 @@
     "test": "npm run typecheck && npm run prettier && npm run lint && npm run vitest && npm run build",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build"
+  },
+  "author": "CoinVeil4065852",
+  "keywords": ["health","activity","sleep","water","dashboard","react","vite","mantine"],
+  "homepage": "https://github.com/CoinVeil4065852/2025_Fall_Programming_Languages_Final_Project_Frontend",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoinVeil4065852/2025_Fall_Programming_Languages_Final_Project_Frontend.git"
   },
   "dependencies": {
     "@mantine/core": "8.3.9",

@@ -254,6 +254,13 @@ export const mockApiClient: ApiClient = {
     db.customData = db.customData || {};
     db.customData[categoryId] = (db.customData[categoryId] || []).filter((it) => it.id !== itemId);
   },
+  async deleteCustomCategory(token, categoryId) {
+    await delay(60);
+    // If categoryId is passed as a name, try to find by id or by name
+    // Here mock uses category id as id in db.customCategories
+    db.customCategories = (db.customCategories || []).filter((c) => c.id !== categoryId && c.categoryName !== categoryId);
+    if (db.customData) delete db.customData[categoryId];
+  },
 };
 
 export default mockApiClient;

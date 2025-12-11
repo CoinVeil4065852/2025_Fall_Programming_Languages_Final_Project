@@ -44,6 +44,7 @@ type AppData = {
   addCustomItem?: (categoryId: string, datetime: string, note: string) => Promise<CustomItem | void>;
   updateCustomItem?: (categoryId: string, itemId: string, datetime: string, note: string) => Promise<CustomItem | void>;
   deleteCustomItem?: (categoryId: string, itemId: string) => Promise<void>;
+  deleteCustomCategory?: (categoryId: string) => Promise<void>;
 };
 
 const AppDataContext = createContext<AppData | undefined>(undefined);
@@ -286,8 +287,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const t = token();
       if (!t) throw new Error('Not authenticated');
-      if (api.createCustomCategory) await api.createCustomCategory(categoryName, t);
+      const created = api.createCustomCategory ? await api.createCustomCategory(categoryName, t) : undefined;
       await refreshCustomCategories();
+      return created;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg ?? t('failed_create_category'));
@@ -330,6 +332,24 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const deleteCustomCategory = async (categoryId: string) => {
+    try {
+      const t = token();
+      if (!t) throw new Error('Not authenticated');
+      if (api.deleteCustomCategory) await api.deleteCustomCategory(t, categoryId);
+      // refresh categories and remove any local data for that category
+      await refreshCustomCategories();
+      setCustomData((prev) => {
+        const copy = { ...prev };
+        delete copy[categoryId];
+        return copy;
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_delete_category'));
+    }
+  };
+
   useEffect(() => {
     refreshAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -368,6 +388,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         addCustomItem,
         updateCustomItem,
         deleteCustomItem,
+        deleteCustomCategory,
       }}
     >
       {children}
