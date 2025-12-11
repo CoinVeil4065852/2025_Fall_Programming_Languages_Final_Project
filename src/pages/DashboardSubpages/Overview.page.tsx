@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { User } from '@/services/types';
 import { Badge, Grid, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
 import ActivityProgressCard from '@/components/InfoCard/ActivityProgressCard/ActivityProgressCard';
 import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
@@ -8,23 +9,15 @@ import { useAppData } from '../../AppDataContext';
 import SleepProgressCard from '../../components/InfoCard/SleepProgressCard/SleepProgressCard';
 
 const OverviewPage = () => {
-  const [profile, setProfile] = useState<any | null>(null);
-  const { profile: appProfile, water, sleep, activity, error } = useAppData();
+  const [profile, setProfile] = useState<User | null>(null);
+  const { profile: appProfile, water, sleep, activity, error, bmi: apiBmi } = useAppData();
 
   useEffect(() => {
     setProfile(appProfile || null);
   }, [appProfile]);
 
-  const computeBmi = (weight?: number, height?: number) => {
-    if (!weight || !height) return undefined;
-    // if height looks like cm (>3), convert to meters
-    const hMeters = height > 3 ? height / 100 : height;
-    if (hMeters <= 0) return undefined;
-    const bmi = weight / (hMeters * hMeters);
-    return Math.round(bmi * 10) / 10;
-  };
-
-  const bmi = computeBmi(profile?.weight, profile?.height);
+  // Use server-provided BMI only; do not compute locally
+  const bmi = apiBmi;
 
   // derive card metrics from app data
   const todayDate = new Date().toISOString().split('T')[0];
@@ -71,7 +64,7 @@ const OverviewPage = () => {
 
   return (
     <Group gap="md" justify="start" align="stretch">
-      <UserMetricsCard profile={profile} error={error} />
+      <UserMetricsCard profile={profile} error={error} bmi={apiBmi} />
 
       <SleepProgressCard currentHours={Number((sleepAvg || 0).toFixed(1))} goalHours={8} />
       <WaterProgressCard currentMl={waterToday} goalMl={2000} />

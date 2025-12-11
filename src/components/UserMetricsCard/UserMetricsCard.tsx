@@ -1,26 +1,22 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Center, Group, Stack, Text ,SimpleGrid, Avatar, Divider, ThemeIcon} from '@mantine/core';
+import { Badge, Center, Group, Stack, Text ,SimpleGrid, Avatar, Divider, ThemeIcon, MantineColor} from '@mantine/core';
 import InfoCard from '@/components/InfoCard/InfoCard';
+import type { User } from '@/services/types';
 import { IconActivity, IconRuler, IconScale, IconUser } from '@tabler/icons-react';
 
 type Props = {
-  profile?: any | null;
+  profile?: User | null;
   error?: string | null;
+  bmi?: number | undefined;
 };
 
-const computeBmi = (weight?: number, height?: number) => {
-  if (!weight || !height) return undefined;
-  const hMeters = height > 3 ? height / 100 : height;
-  if (hMeters <= 0) return undefined;
-  const bmi = weight / (hMeters * hMeters);
-  return Math.round(bmi * 10) / 10;
-};
 
-const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
+const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
   const { t } = useTranslation();
 
-  const bmi = computeBmi(profile?.weight, profile?.height);
+  // Use the server-provided BMI only (no local calculation)
+  const bmi = apiBmi;
 
   const bmiLabel = (v?: number) => {
     if (!v) return { label: '—', color: 'gray' };
@@ -39,12 +35,12 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
           {/* 1. User Header Section */}
           <Group align="center">
             <Avatar size="lg" radius="xl" color="blue" variant="light">
-              {profile?.username?.[0]?.toUpperCase() ?? <IconUser size={24} />}
+              {profile?.name?.[0]?.toUpperCase() ?? <IconUser size={24} />}
             </Avatar>
 
             <div style={{ flex: 1 }}>
               <Text fw={700} size="lg" lh={1.2}>
-                {profile?.username ?? '—'}
+                {profile?.name ?? '—'}
               </Text>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600} mt={2}>
                 {profile?.gender ? String(profile.gender) : '—'}
@@ -53,7 +49,7 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
 
             {/* Optional: Status Badge in top right */}
             {bmi && (
-              <Badge variant="light" color={bmiInfo.color as any} size="lg">
+              <Badge variant="light" color={bmiInfo.color as MantineColor} size="lg">
                 {bmiInfo.label}
               </Badge>
             )}
@@ -72,7 +68,7 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
                 {t('weight')}
               </Text>
               <Text fw={700} size="lg">
-                {profile?.weight ? profile.weight : '—'}{' '}
+                {profile?.weightKg ? profile.weightKg : '—'}{' '}
                 <Text span size="sm" c="dimmed" fw={400}>
                   {t('kg')}
                 </Text>
@@ -88,22 +84,22 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error }) => {
                 {t('height')}
               </Text>
               <Text fw={700} size="lg">
-                {profile?.height ? (profile.height > 3 ? profile.height : profile.height) : '—'}
+                {profile?.heightM ? (profile.heightM >= 1 ? Math.round(profile.heightM * 100) : profile.heightM) : '—'}
                 <Text span size="sm" c="dimmed" fw={400}>
-                  {profile?.height ? (profile.height > 3 ? t('cm') : t('m')) : ''}
+                  {profile?.heightM ? (profile.heightM >= 1 ? t('cm') : t('m')) : ''}
                 </Text>
               </Text>
             </Stack>
 
             {/* BMI Value */}
             <Stack gap={4} align="center">
-              <ThemeIcon variant="light" color={bmiInfo.color as any} radius="xl" size="md">
+              <ThemeIcon variant="light" color={bmiInfo.color as MantineColor} radius="xl" size="md">
                 <IconActivity size={18} />
               </ThemeIcon>
               <Text size="xs" c="dimmed" mt={4}>
                 {t('bmi')}
               </Text>
-              <Text fw={700} size="lg" c={bmiInfo.color as any}>
+              <Text fw={700} size="lg" c={bmiInfo.color as MantineColor}>
                 {bmi ?? '—'}
               </Text>
             </Stack>

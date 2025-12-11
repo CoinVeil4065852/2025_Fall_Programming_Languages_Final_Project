@@ -1,22 +1,21 @@
 import api from './index';
+import type { Credentials, AuthResponse, User } from './types';
 
-type Credentials = { username: string; password: string };
-
-export async function login(creds: Credentials) {
+export async function login(creds: Credentials): Promise<AuthResponse> {
   return api.login(creds);
 }
 
 export async function register(data: {
-  username: string;
+  name: string;
   password: string;
   age: number;
-  weight: number;
-  height: number;
-  gender: string;
-}) {
+  weightKg: number;
+  heightM: number;
+  gender: 'male' | 'female' | 'other';
+}): Promise<AuthResponse> {
   return api.register(data);
 }
 
-export async function getProfile(token: string) {
+export async function getProfile(token: string): Promise<User> {
   return api.getProfile(token);
 }

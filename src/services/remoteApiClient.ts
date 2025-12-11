@@ -1,18 +1,20 @@
-import { ApiClient, AuthResponse, Credentials, User, WaterRecord, SleepRecord, ActivityRecord, CustomItem } from './types';
+import { ApiClient, AuthResponse, Credentials, User, WaterRecord, SleepRecord, ActivityRecord, CustomItem, Category } from './types';
 
 const base = import.meta.env.VITE_API_BASE || '';
 
 async function req(path: string, opts: RequestInit = {}) {
   const res = await fetch(base + path, opts);
   const text = await res.text();
-  let json: any = null;
+  let json: unknown = null;
   try {
     json = text ? JSON.parse(text) : null;
   } catch (e) {
     // ignore parse error
   }
   if (!res.ok) {
-    const err = (json && json.message) || res.statusText || 'API error';
+    const obj = json as Record<string, unknown> | null;
+    const errMessage = obj && typeof obj['message'] === 'string' ? (obj['message'] as string) : undefined;
+    const err = errMessage || res.statusText || 'API error';
     throw new Error(err);
   }
   return json;
@@ -20,21 +22,23 @@ async function req(path: string, opts: RequestInit = {}) {
 
 export const remoteApiClient: ApiClient = {
   async login(creds) {
-    const body = JSON.stringify({ name: creds.username, password: creds.password });
+    const body = JSON.stringify({ name: creds.name, password: creds.password });
     const json = await req('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    const token: string = json?.token;
+    const obj = json as Record<string, unknown> | null;
+    const token: string | undefined = obj && typeof obj['token'] === 'string' ? (obj['token'] as string) : undefined;
     if (!token) throw new Error('Login failed: no token returned');
     return { token } as AuthResponse;
   },
 
   async register(data) {
-    const payload: any = { name: data.username, password: data.password };
+    const payload: Record<string, unknown> = { name: data.name, password: data.password };
     if (data.age != null) payload.age = data.age;
-    if (data.weight != null) payload.weightKg = data.weight;
-    if (data.height != null) payload.heightM = data.height;
+    if (data.weightKg != null) payload.weightKg = data.weightKg;
+    if (data.heightM != null) payload.heightM = data.heightM;
     if (data.gender != null) payload.gender = data.gender;
     const json = await req('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const token: string = json?.token;
+    const obj = json as Record<string, unknown> | null;
+    const token: string | undefined = obj && typeof obj['token'] === 'string' ? (obj['token'] as string) : undefined;
     if (!token) throw new Error('Register failed: no token returned');
     return { token } as AuthResponse;
   },
@@ -46,7 +50,10 @@ export const remoteApiClient: ApiClient = {
 
   async getBMI(token) {
     const json = await req('/user/bmi', { headers: { Authorization: `Bearer ${token}` } });
-    return json.bmi as number;
+    const obj = json as Record<string, unknown> | null;
+    const bmi = obj && typeof obj['bmi'] === 'number' ? (obj['bmi'] as number) : undefined;
+    if (typeof bmi !== 'number') throw new Error('Invalid BMI returned');
+    return bmi;
   },
 
   async addWater(token, datetime, amountMl) {
@@ -62,7 +69,8 @@ export const remoteApiClient: ApiClient = {
 
   async updateWater(token, id, datetime, amountMl) {
     const body = JSON.stringify({ datetime, amountMl });
-    await req(`/waters/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
+    const json = await req(`/waters/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
+    return json as WaterRecord;
   },
 
   async deleteWater(token, id) {
@@ -82,7 +90,8 @@ export const remoteApiClient: ApiClient = {
   },
 
   async updateSleep(token, id, datetime, hours) {
-    await req(`/sleeps/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ datetime, hours }) });
+    const json = await req(`/sleeps/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ datetime, hours }) });
+    return json as SleepRecord;
   },
 
   async addActivity(token, datetime, minutes, intensity) {
@@ -98,7 +107,8 @@ export const remoteApiClient: ApiClient = {
 
   async updateActivity(token, id, datetime, minutes, intensity) {
     const body = JSON.stringify({ datetime, minutes, intensity });
-    await req(`/activities/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
+    const json = await req(`/activities/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body });
+    return json as ActivityRecord;
   },
 
   async deleteActivity(token, id) {
@@ -110,28 +120,28 @@ export const remoteApiClient: ApiClient = {
   },
   async getCustomCategories(token?) {
     const json = await req('/category/list', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-    // server may return array of { id, categoryName } or array of strings; normalize to string[]
-    if (Array.isArray(json) && json.length && typeof json[0] === 'object') return (json as any[]).map((c) => c.categoryName) as string[];
-    return (json || []) as string[];
+    return (json || []) as Category[];
   },
-  async getCustomData(categoryName, token?) {
-    const json = await req(`/category/${encodeURIComponent(categoryName)}/list`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  async getCustomData(categoryId, token?) {
+    const json = await req(`/category/${encodeURIComponent(categoryId)}/list`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     return (json || []) as CustomItem[];
   },
   async createCustomCategory(categoryName, token?) {
-    await req('/category/create', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ categoryName }) });
+    const json = await req('/category/create', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ categoryName }) });
+    return json as Category;
   },
-  async addCustomItem(token, categoryName, datetime, note) {
+  async addCustomItem(token, categoryId, datetime, note) {
     const body = JSON.stringify({ datetime, note });
-    const json = await req(`/category/${encodeURIComponent(categoryName)}/add`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
+    const json = await req(`/category/${encodeURIComponent(categoryId)}/add`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
     return json as CustomItem;
   },
-  async updateCustomItem(token, categoryName, itemId, datetime, note) {
+  async updateCustomItem(token, categoryId, itemId, datetime, note) {
     const body = JSON.stringify({ datetime, note });
-    await req(`/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
+    const json = await req(`/category/${encodeURIComponent(categoryId)}/${encodeURIComponent(itemId)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
+    return json as CustomItem;
   },
-  async deleteCustomItem(token, categoryName, itemId) {
-    await req(`/category/${encodeURIComponent(categoryName)}/${encodeURIComponent(itemId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  async deleteCustomItem(token, categoryId, itemId) {
+    await req(`/category/${encodeURIComponent(categoryId)}/${encodeURIComponent(itemId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} });
   },
 };
 

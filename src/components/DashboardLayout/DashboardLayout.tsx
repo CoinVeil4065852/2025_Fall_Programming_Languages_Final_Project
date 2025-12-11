@@ -65,19 +65,23 @@ const DashboardLayout = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
   const { setColorScheme, clearColorScheme, colorScheme } = useMantineColorScheme();
   useEffect(() => {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-    if (!token) return;
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     let mounted = true;
     (async () => {
       try {
         const profile = await getProfile(token);
-        if (mounted) setUsername(profile.username ?? null);
+        if (mounted) setName(profile.name ?? null);
       } catch (err) {
-        // ignore
-        if (mounted) setUsername(null);
+        // invalid token or request failed: redirect to login
+        if (mounted) setName(null);
+        navigate('/login');
       }
     })();
     return () => {
@@ -200,7 +204,7 @@ const DashboardLayout = () => {
         <AppShell.Section mt="auto">
           <Group justify="space-between" align="center" pl="xs" pr="xs">
             <Text size="md">
-              {typeof username === 'string' && username ? username : t('username')}
+              {typeof name === 'string' && name ? name : t('username')}
             </Text>
             <Tooltip label={t('logout')}>
               <ActionIcon

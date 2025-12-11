@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 type Values = {
   duration: number | '';
   time: string;
-  intensity: 'low' | 'medium' | 'high' | '';
+  intensity: 'low' | 'moderate' | 'high' | '';
 };
 
 type Props = {
@@ -31,7 +31,7 @@ const AddActivityModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValu
   const defaults: Values = {
     duration: 30,
     time: toLocalDatetimeInput(new Date()),
-    intensity: 'medium',
+    intensity: 'moderate',
   };
 
   const { t } = useTranslation();
@@ -56,7 +56,7 @@ const AddActivityModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValu
             label={t('intensity')}
             data={[
               { value: 'low', label: t('intensity_low') },
-              { value: 'medium', label: t('intensity_medium') },
+              { value: 'moderate', label: t('intensity_medium') },
               { value: 'high', label: t('intensity_high') },
             ]}
             {...form.getInputProps('intensity')}

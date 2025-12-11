@@ -122,6 +122,7 @@ const DailyActivityCard: React.FC<Props> = ({
   // MET values by intensity mapping (reasonable defaults)
   const intensityToMET: Record<string, number> = {
     low: 3.0,
+    moderate: 5.0,
     medium: 5.0,
     high: 8.0,
   };
@@ -131,7 +132,7 @@ const DailyActivityCard: React.FC<Props> = ({
   // Total calories = sum(duration_minutes * calories_per_minute) * ageFactor
   // We include a mild age adjustment so that older users slightly burn fewer calories
   const computeCaloriesFromActivities = () => {
-    const w = profile?.weight ?? 70; // kg
+    const w = profile?.weightKg ?? 70; // kg
     const age = profile?.age ?? 30;
     // small age factor: +/- up to ~10% between ages 0..100 (clamped)
     const ageFactor = Math.max(0.9, Math.min(1.1, 1 - (age - 30) * 0.003));

@@ -1,4 +1,4 @@
-import { ApiClient, AuthResponse, Credentials, User, WaterRecord, SleepRecord, ActivityRecord, CustomItem } from './types';
+import { ApiClient, AuthResponse, Credentials, User, WaterRecord, SleepRecord, ActivityRecord, CustomItem, Category } from './types';
 
 // Simple in-memory mock implementing the ApiClient interface.
 const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
@@ -10,20 +10,23 @@ const db: {
   water: Record<string, Array<WaterRecord>>;
   sleep: Record<string, Array<SleepRecord>>;
   activity: Record<string, Array<ActivityRecord>>;
-  customCategories?: string[];
+  customCategories?: Category[];
   customData?: Record<string, Array<CustomItem>>;
 } = {
   users: [
-    { id: '1', username: 'alice', age: 30, weight: 60, height: 165, gender: 'female', password: 'password' },
-    { id: '2', username: 'bob', age: 28, weight: 75, height: 180, gender: 'male', password: 'password' },
+    { id: '1', name: 'alice', age: 30, weightKg: 60, heightM: 1.65, gender: 'female', password: 'password' },
+    { id: '2', name: 'bob', age: 28, weightKg: 75, heightM: 1.8, gender: 'male', password: 'password' },
   ],
   water: {},
   sleep: {},
   activity: {},
-  customCategories: ['Food', 'Medications'],
+  customCategories: [
+    { id: 'cat-1', categoryName: 'Food' },
+    { id: 'cat-2', categoryName: 'Medications' },
+  ],
   customData: {
-    Food: [],
-    Medications: [],
+    'cat-1': [],
+    'cat-2': [],
   },
 };
 
@@ -42,23 +45,23 @@ function userIdFromToken(token: string) {
 export const mockApiClient: ApiClient = {
   async login(creds: Credentials) {
     await delay(300 + Math.random() * 200);
-    const user = db.users.find((u) => u.username === creds.username);
+    const user = db.users.find((u) => u.name === creds.name);
     if (!user || creds.password !== 'password') {
-      throw new Error('Invalid username or password (mock)');
+      throw new Error('Invalid name or password (mock)');
     }
     return { token: tokenFor(user.id) } as AuthResponse;
   },
 
   async register(data) {
     await delay(400 + Math.random() * 300);
-    if (!data.username || !data.password) throw new Error('Missing username or password');
-    if (db.users.find((u) => u.username === data.username)) throw new Error('Username taken (mock)');
+    if (!data.name || !data.password) throw new Error('Missing name or password');
+    if (db.users.find((u) => u.name === data.name)) throw new Error('Name taken (mock)');
     const newUser: InternalUser = {
       id: String(nextId++),
-      username: data.username,
+      name: data.name,
       age: data.age,
-      weight: data.weight,
-      height: data.height,
+      weightKg: data.weightKg,
+      heightM: data.heightM,
       gender: data.gender,
       password: data.password,
     };
@@ -72,7 +75,8 @@ export const mockApiClient: ApiClient = {
     if (!uid) throw new Error('Invalid token (mock)');
     const user = db.users.find((u) => u.id === uid);
     if (!user) throw new Error('User not found (mock)');
-    return { ...user } as User;
+    const { password, ...safe } = user as InternalUser;
+    return { ...safe } as User;
   },
 
   async getBMI(token) {
@@ -80,10 +84,8 @@ export const mockApiClient: ApiClient = {
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     const user = db.users.find((u) => u.id === uid);
-    if (!user || !user.weight || !user.height) throw new Error('User data incomplete (mock)');
-    // height in cm in mock data; convert to meters if > 10
-    const heightM = user.height > 10 ? user.height / 100 : user.height;
-    const bmi = user.weight / (heightM * heightM);
+    if (!user || !user.weightKg || !user.heightM) throw new Error('User data incomplete (mock)');
+    const bmi = user.weightKg / (user.heightM * user.heightM);
     return Math.round(bmi * 10) / 10;
   },
 
@@ -92,7 +94,7 @@ export const mockApiClient: ApiClient = {
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.water[uid] = db.water[uid] || [];
-    const rec: WaterRecord = { id: String(nextRecId++), datetime, amountMl } as any;
+    const rec: WaterRecord = { id: String(nextRecId++), datetime, amountMl };
     db.water[uid].push(rec);
     return rec;
   },
@@ -111,7 +113,10 @@ export const mockApiClient: ApiClient = {
     db.water[uid] = db.water[uid] || [];
     const idx = db.water[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Record not found (mock)');
-    db.water[uid][idx] = { id, datetime, amountMl } as any;
+    const old = db.water[uid][idx];
+    const updatedWater: WaterRecord = { id, datetime: datetime ?? old.datetime, amountMl: amountMl ?? old.amountMl };
+    db.water[uid][idx] = updatedWater;
+    return updatedWater;
   },
 
   async deleteWater(token, id) {
@@ -127,7 +132,7 @@ export const mockApiClient: ApiClient = {
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.sleep[uid] = db.sleep[uid] || [];
-    const rec: SleepRecord = { id: String(nextRecId++), datetime, hours } as any;
+    const rec: SleepRecord = { id: String(nextRecId++), datetime, hours };
     db.sleep[uid].push(rec);
     return rec;
   },
@@ -146,7 +151,10 @@ export const mockApiClient: ApiClient = {
     db.sleep[uid] = db.sleep[uid] || [];
     const idx = db.sleep[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Sleep record not found (mock)');
-    db.sleep[uid][idx] = { id, datetime, hours } as any;
+    const old = db.sleep[uid][idx];
+    const updatedSleep: SleepRecord = { id, datetime: datetime ?? old.datetime, hours: hours ?? old.hours };
+    db.sleep[uid][idx] = updatedSleep;
+    return updatedSleep;
   },
 
   async deleteSleep(token, id) {
@@ -162,7 +170,7 @@ export const mockApiClient: ApiClient = {
     const uid = userIdFromToken(token);
     if (!uid) throw new Error('Invalid token (mock)');
     db.activity[uid] = db.activity[uid] || [];
-    const rec: ActivityRecord = { id: String(nextRecId++), datetime, minutes, intensity } as any;
+    const rec: ActivityRecord = { id: String(nextRecId++), datetime, minutes, intensity };
     db.activity[uid].push(rec);
     return rec;
   },
@@ -181,7 +189,10 @@ export const mockApiClient: ApiClient = {
     db.activity[uid] = db.activity[uid] || [];
     const idx = db.activity[uid].findIndex((r) => r.id === id);
     if (idx === -1) throw new Error('Activity record not found (mock)');
-    db.activity[uid][idx] = { id, datetime, minutes, intensity } as any;
+    const old = db.activity[uid][idx];
+    const updatedAct: ActivityRecord = { id, datetime: datetime ?? old.datetime, minutes: minutes ?? old.minutes, intensity: intensity ?? old.intensity };
+    db.activity[uid][idx] = updatedAct;
+    return updatedAct;
   },
 
   async deleteActivity(token, id) {
@@ -199,40 +210,49 @@ export const mockApiClient: ApiClient = {
   },
   async getCustomCategories(token?) {
     await delay(80);
-    return db.customCategories ? db.customCategories.slice() : [];
+    return db.customCategories ? db.customCategories.map((c) => ({ ...c })) : [];
   },
-  async getCustomData(categoryName, token?) {
+  async getCustomData(categoryId, token?) {
     await delay(100);
-    const list = (db.customData && db.customData[categoryName]) || [];
+    const list = (db.customData && db.customData[categoryId]) || [];
     return list.slice();
   },
   async createCustomCategory(categoryName, token?) {
     await delay(80);
     db.customCategories = db.customCategories || [];
-    if (!db.customCategories.includes(categoryName)) db.customCategories.push(categoryName);
-    db.customData = db.customData || {};
-    db.customData[categoryName] = db.customData[categoryName] || [];
+    const existing = db.customCategories.find((c) => c.categoryName === categoryName);
+    if (!existing) {
+      const newCat: Category = { id: `cat-${nextId++}`, categoryName };
+      db.customCategories.push(newCat);
+      db.customData = db.customData || {};
+      db.customData[newCat.id] = [];
+      return newCat;
+    }
+    return existing;
   },
-  async addCustomItem(token, categoryName, datetime, note) {
+  async addCustomItem(token, categoryId, datetime, note) {
     await delay(80);
     db.customData = db.customData || {};
-    db.customData[categoryName] = db.customData[categoryName] || [];
-    const item: CustomItem = { id: String(nextRecId++), datetime, note };
-    db.customData[categoryName].push(item);
+    db.customData[categoryId] = db.customData[categoryId] || [];
+      const item: CustomItem = { id: String(nextRecId++), categoryId, datetime, note };
+      db.customData[categoryId].push(item);
     return item;
   },
-  async updateCustomItem(token, categoryName, itemId, datetime, note) {
+  async updateCustomItem(token, categoryId, itemId, datetime, note) {
     await delay(80);
     db.customData = db.customData || {};
-    db.customData[categoryName] = db.customData[categoryName] || [];
-    const idx = db.customData[categoryName].findIndex((it) => it.id === itemId);
+    db.customData[categoryId] = db.customData[categoryId] || [];
+    const idx = db.customData[categoryId].findIndex((it) => it.id === itemId);
     if (idx === -1) throw new Error('Custom item not found (mock)');
-    db.customData[categoryName][idx] = { id: itemId, datetime, note };
+    const old = db.customData[categoryId][idx];
+    const updated = { id: itemId, categoryId, datetime: datetime ?? old.datetime, note: note ?? old.note };
+    db.customData[categoryId][idx] = updated;
+    return db.customData[categoryId][idx];
   },
-  async deleteCustomItem(token, categoryName, itemId) {
+  async deleteCustomItem(token, categoryId, itemId) {
     await delay(80);
     db.customData = db.customData || {};
-    db.customData[categoryName] = (db.customData[categoryName] || []).filter((it) => it.id !== itemId);
+    db.customData[categoryId] = (db.customData[categoryId] || []).filter((it) => it.id !== itemId);
   },
 };
 

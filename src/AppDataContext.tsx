@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from './services';
-import type { WaterRecord, SleepRecord, ActivityRecord, CustomItem, User } from './services/types';
+import type { WaterRecord, SleepRecord, ActivityRecord, CustomItem, User, Category } from './services/types';
 
 type AppData = {
   profile: User | null;
   water: WaterRecord[];
   sleep: SleepRecord[];
   activity: ActivityRecord[];
-  customCategories: string[];
+  bmi?: number | undefined;
+  customCategories: Category[];
   customData: Record<string, CustomItem[]>;
   loading: boolean;
   error?: string | null;
@@ -20,7 +21,8 @@ type AppData = {
   refreshSleep: () => Promise<void>;
   refreshActivity: () => Promise<void>;
   refreshCustomCategories: () => Promise<void>;
-  refreshCustomData: (category: string) => Promise<void>;
+  refreshCustomData: (categoryId: string) => Promise<void>;
+  refreshBmi: () => Promise<void>;
 
   // water ops
   addWater: (datetime: string, amountMl: number) => Promise<WaterRecord | void>;
@@ -38,10 +40,10 @@ type AppData = {
   deleteActivity?: (id: string) => Promise<void>;
 
   // custom
-  createCustomCategory?: (categoryName: string) => Promise<void>;
-  addCustomItem?: (categoryName: string, datetime: string, note: string) => Promise<CustomItem | void>;
-  updateCustomItem?: (categoryName: string, itemId: string, datetime: string, note: string) => Promise<void>;
-  deleteCustomItem?: (categoryName: string, itemId: string) => Promise<void>;
+  createCustomCategory?: (categoryName: string) => Promise<Category | void>;
+  addCustomItem?: (categoryId: string, datetime: string, note: string) => Promise<CustomItem | void>;
+  updateCustomItem?: (categoryId: string, itemId: string, datetime: string, note: string) => Promise<CustomItem | void>;
+  deleteCustomItem?: (categoryId: string, itemId: string) => Promise<void>;
 };
 
 const AppDataContext = createContext<AppData | undefined>(undefined);
@@ -57,7 +59,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [water, setWater] = useState<WaterRecord[]>([]);
   const [sleep, setSleep] = useState<SleepRecord[]>([]);
   const [activity, setActivity] = useState<ActivityRecord[]>([]);
-  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [customCategories, setCustomCategories] = useState<Category[]>([]);
   const [customData, setCustomData] = useState<Record<string, CustomItem[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +74,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) return setProfile(null);
       const p = await api.getProfile(t);
       setProfile(p || null);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_profile'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_profile'));
       setProfile(null);
     }
   };
@@ -84,8 +87,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) return setWater([]);
       const recs = await api.getAllWater(t);
       setWater(recs || []);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_water'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_water'));
       setWater([]);
     }
   };
@@ -96,8 +100,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) return setSleep([]);
       const recs = (api.getAllSleep ? await api.getAllSleep(t) : []) as SleepRecord[];
       setSleep(recs || []);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_sleep'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_sleep'));
       setSleep([]);
     }
   };
@@ -108,8 +113,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) return setActivity([]);
       const recs = await api.getAllActivity(t);
       setActivity(recs || []);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_activity'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_activity'));
       setActivity([]);
     }
   };
@@ -119,31 +125,49 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const t = token();
       if (!t) return setCustomCategories([]);
       if (!api.getCustomCategories) return setCustomCategories([]);
-      const cats = await api.getCustomCategories(t);
-      setCustomCategories(cats || []);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_categories'));
+      const cats = (await api.getCustomCategories(t)) || [];
+      setCustomCategories(cats);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_categories'));
       setCustomCategories([]);
     }
   };
 
-  const refreshCustomData = async (category: string) => {
+  const refreshCustomData = async (categoryId: string) => {
     try {
       const t = token();
       if (!t) return;
       if (!api.getCustomData) return;
-      const data = await api.getCustomData(category, t);
-      setCustomData((prev) => ({ ...prev, [category]: data || [] }));
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_load_custom_data'));
-      setCustomData((prev) => ({ ...prev, [category]: [] }));
+      const data = await api.getCustomData(categoryId, t);
+      setCustomData((prev) => ({ ...prev, [categoryId]: data || [] }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_custom_data'));
+      setCustomData((prev) => ({ ...prev, [categoryId]: [] }));
     }
   };
 
   const refreshAll = async () => {
     setLoading(true);
-    await Promise.all([refreshProfile(), refreshWater(), refreshSleep(), refreshActivity(), refreshCustomCategories()]);
+    await Promise.all([refreshProfile(), refreshWater(), refreshSleep(), refreshActivity(), refreshCustomCategories(), refreshBmi()]);
     setLoading(false);
+  };
+
+  const [bmi, setBmi] = useState<number | undefined>(undefined);
+
+  const refreshBmi = async () => {
+    try {
+      const t = token();
+      if (!t) return setBmi(undefined);
+      if (!api.getBMI) return setBmi(undefined);
+      const v = await api.getBMI(t);
+      setBmi(v);
+    } catch (e) {
+      setBmi(undefined);
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_load_bmi'));
+    }
   };
 
   // ops
@@ -154,8 +178,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const created = await api.addWater(t, datetime, amountMl);
       await refreshWater();
       return created;
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_add_water'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_add_water'));
     }
   };
 
@@ -165,8 +190,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.updateWater) await api.updateWater(t, id, datetime, amountMl);
       await refreshWater();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_update_water'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_update_water'));
     }
   };
 
@@ -176,8 +202,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.deleteWater) await api.deleteWater(t, id);
       await refreshWater();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_delete_water'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_delete_water'));
     }
   };
 
@@ -188,8 +215,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const created = api.addSleep ? await api.addSleep(t, datetime, hours) : undefined;
       await refreshSleep();
       return created;
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_add_sleep'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_add_sleep'));
     }
   };
 
@@ -199,8 +227,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.updateSleep) await api.updateSleep(t, id, datetime, hours);
       await refreshSleep();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_update_sleep'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_update_sleep'));
     }
   };
 
@@ -210,8 +239,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.deleteSleep) await api.deleteSleep(t, id);
       await refreshSleep();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_delete_sleep'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_delete_sleep'));
     }
   };
 
@@ -222,8 +252,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const created = await api.addActivity(t, datetime, minutes, intensity);
       await refreshActivity();
       return created;
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_add_activity'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_add_activity'));
     }
   };
 
@@ -233,8 +264,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.updateActivity) await api.updateActivity(t, id, datetime, minutes, intensity);
       await refreshActivity();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_update_activity'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_update_activity'));
     }
   };
 
@@ -244,8 +276,9 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.deleteActivity) await api.deleteActivity(t, id);
       await refreshActivity();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_delete_activity'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_delete_activity'));
     }
   };
 
@@ -255,41 +288,45 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!t) throw new Error('Not authenticated');
       if (api.createCustomCategory) await api.createCustomCategory(categoryName, t);
       await refreshCustomCategories();
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_create_category'));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_create_category'));
     }
   };
 
-  const addCustomItem = async (categoryName: string, datetime: string, note: string) => {
+  const addCustomItem = async (categoryId: string, datetime: string, note: string) => {
     try {
       const t = token();
       if (!t) throw new Error('Not authenticated');
-      if (api.addCustomItem) await api.addCustomItem(t, categoryName, datetime, note);
-      await refreshCustomData(categoryName);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_add_custom_item'));
+      if (api.addCustomItem) await api.addCustomItem(t, categoryId, datetime, note);
+      await refreshCustomData(categoryId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_add_custom_item'));
     }
   };
 
-  const updateCustomItem = async (categoryName: string, itemId: string, datetime: string, note: string) => {
+  const updateCustomItem = async (categoryId: string, itemId: string, datetime: string, note: string) => {
     try {
       const t = token();
       if (!t) throw new Error('Not authenticated');
-      if (api.updateCustomItem) await api.updateCustomItem(t, categoryName, itemId, datetime, note);
-      await refreshCustomData(categoryName);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_update_custom_item'));
+      if (api.updateCustomItem) await api.updateCustomItem(t, categoryId, itemId, datetime, note);
+      await refreshCustomData(categoryId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_update_custom_item'));
     }
   };
 
-  const deleteCustomItem = async (categoryName: string, itemId: string) => {
+  const deleteCustomItem = async (categoryId: string, itemId: string) => {
     try {
       const t = token();
       if (!t) throw new Error('Not authenticated');
-      if (api.deleteCustomItem) await api.deleteCustomItem(t, categoryName, itemId);
-      await refreshCustomData(categoryName);
-    } catch (e: any) {
-      setError(e?.message ?? t('failed_delete_custom_item'));
+      if (api.deleteCustomItem) await api.deleteCustomItem(t, categoryId, itemId);
+      await refreshCustomData(categoryId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg ?? t('failed_delete_custom_item'));
     }
   };
 
@@ -302,6 +339,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <AppDataContext.Provider
       value={{
         profile,
+        bmi,
         water,
         sleep,
         activity,
@@ -316,6 +354,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         refreshActivity,
         refreshCustomCategories,
         refreshCustomData,
+        refreshBmi,
         addWater,
         updateWater,
         deleteWater,

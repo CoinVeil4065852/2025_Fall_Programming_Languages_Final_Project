@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Group, Text } from '@mantine/core';
 import { useAppData } from '@/AppDataContext';
+import type { WaterRecord } from '@/services/types';
 import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
 import WaterWeeklyCard from '@/components/InfoCard/WaterWeeklyCard/WaterWeeklyCard';
 import AddWaterModal from '@/components/Modals/AddWaterModal/AddWaterModal';
@@ -19,11 +20,11 @@ const WaterPage = () => {
   const [editItem, setEditItem] = useState<UiWaterRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const uiRecords: UiWaterRecord[] = water.map((rr: any) => ({
+  const uiRecords: UiWaterRecord[] = (water || []).map((rr: WaterRecord) => ({
     id: String(rr.id ?? ''),
     date: rr.datetime ? String(rr.datetime).split('T')[0] : '',
     time: rr.datetime ? (String(rr.datetime).split('T')[1] ?? '') : '',
-    amountMl: rr.amountMl ?? rr.amount ?? 0,
+    amountMl: rr.amountMl ?? 0,
   }));
 
   const total = uiRecords.reduce((s, r) => s + (r.amountMl || 0), 0);
@@ -40,8 +41,9 @@ const WaterPage = () => {
       const min = pad(now.getMinutes());
       const datetime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
       if (addWater) await addWater(datetime, 250);
-    } catch (err: any) {
-      setError(err?.message ?? t('failed_add_250ml'));
+        } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg ?? t('failed_add_250ml'));
     }
   };
 
@@ -62,17 +64,19 @@ const WaterPage = () => {
 
       <RecordList
         title={t('water_records')}
-        records={uiRecords as any}
+        records={uiRecords}
         onEdit={(r) => {
-          setEditItem({ id: r.id, date: r.date, time: r.time, amountMl: r.amountMl });
+          const rec = r as UiWaterRecord;
+          setEditItem({ id: rec.id, date: rec.date, time: rec.time, amountMl: rec.amountMl });
           setAddOpen(true);
         }}
         onDelete={async (r) => {
           try {
             setError(null);
             if (deleteWater) await deleteWater(r.id);
-          } catch (err: any) {
-            setError(err?.message ?? t('failed_delete_record'));
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setError(msg ?? t('failed_delete_record'));
           }
         }}
         style={{ width: '100%' }}
@@ -106,8 +110,9 @@ const WaterPage = () => {
             } else {
               if (addWater) await addWater(time, amount);
             }
-          } catch (e: any) {
-            setError(e?.message ?? t('failed_save_record'));
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            setError(msg ?? t('failed_save_record'));
           } finally {
             setAddOpen(false);
             setEditItem(null);

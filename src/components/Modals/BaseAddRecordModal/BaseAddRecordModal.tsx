@@ -9,7 +9,7 @@ type BaseAddRecordModalProps<T> = {
   title?: string;
   initialValues?: T;
   onSubmit: (values: T) => Promise<void> | void;
-  children: (form: ReturnType<typeof useForm>) => React.ReactNode;
+  children: (form: ReturnType<typeof useForm<any>>) => React.ReactNode;
   submitLabel?: string;
 };
 
@@ -52,7 +52,7 @@ function BaseAddRecordModal<T extends Record<string, any>>({
     >
       <form onSubmit={handleSubmit} noValidate>
         <Stack>
-          {children(form as any)}
+          {children(form)}
           <Group ml="auto" mt="md">
             <Button type="submit">{resolvedSubmit}</Button>
           </Group>

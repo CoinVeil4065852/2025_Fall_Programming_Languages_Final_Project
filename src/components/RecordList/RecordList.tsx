@@ -2,7 +2,7 @@ import { Button, Group, ScrollArea, Stack, Table, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import InfoCard, { InfoCardProps } from '../InfoCard/InfoCard';
 
-type RecordItem = { id: string; [key: string]: any };
+type RecordItem = { id: string; [key: string]: unknown };
 
 type RecordListProps = Omit<InfoCardProps, 'children'> & {
   title?: string;
@@ -60,7 +60,7 @@ const RecordList = ({ title, records, onEdit, onDelete, onAddClick, ...infoCardP
               {records.map((r) => (
                 <Table.Tr key={r.id}>
                   {keys.map((k) => {
-                    const value: any = r[k] ?? '';
+                    const value: unknown = (r as Record<string, unknown>)[k] ?? '';
                     return (
                       <Table.Td key={k}>
                         <Text size="sm">{String(value)}</Text>

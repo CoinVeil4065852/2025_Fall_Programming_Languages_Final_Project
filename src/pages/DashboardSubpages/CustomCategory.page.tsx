@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Button, Grid, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useAppData } from '@/AppDataContext';
 import AddCustomItemModal from '@/components/Modals/AddCustomItemModal/AddCustomItemModal';
-import { CustomItem } from '@/services/types';
+import { CustomItem, Category } from '@/services/types';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiCustomRecord = { id: string; date: string; time: string; note: string };
 
 const CustomCategoryPage = () => {
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelected] = useState<string | null>(null);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -36,7 +36,7 @@ const CustomCategoryPage = () => {
       customCategories &&
       customCategories.length > 0
     ) {
-      setSelected(customCategories[0]);
+      setSelected(customCategories[0].id);
     }
   }, [customCategories]);
 
@@ -54,8 +54,9 @@ const CustomCategoryPage = () => {
       if (!createCustomCategory) throw new Error(t('endpoint_not_implemented'));
       await createCustomCategory(newCategory);
       setNewCategory('');
-    } catch (err: any) {
-      setError(err?.message ?? t('failed_create_category'));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg ?? t('failed_create_category'));
       setNewCategory('');
     }
   };
@@ -66,7 +67,7 @@ const CustomCategoryPage = () => {
       <Grid>
         <Grid.Col span={6}>
           <Select
-            data={categories}
+            data={categories.map((c) => ({ value: c.id, label: c.categoryName }))}
             value={selectedCategory}
             onChange={setSelected}
             placeholder={t('select_category')}
@@ -94,9 +95,9 @@ const CustomCategoryPage = () => {
       {/** derive which fields to show and explicitly hide `datetime` for custom categories */}
       <RecordList
         style={{ width: '100%' }}
-        title={selectedCategory ? `${selectedCategory} ${t('records')}` : t('select_a_category')}
+            title={selectedCategory ? `${categories.find((c) => c.id === selectedCategory)?.categoryName ?? ''} ${t('records')}` : t('select_a_category')}
         records={uiRecords}
-        onEdit={(r) => {
+          onEdit={(r) => {
           setEditItem(
             customData[selectedCategory ?? ''].find(
               (item) => String(item.id) === r.id
@@ -104,15 +105,16 @@ const CustomCategoryPage = () => {
           );
           setAddOpen(true);
         }}
-        onDelete={async (r) => {
+            onDelete={async (r) => {
           try {
             setError(null);
             if (selectedCategory && deleteCustomItem) {
-              await deleteCustomItem(selectedCategory, r.id);
-              await refreshCustomData?.(selectedCategory);
+                  await deleteCustomItem(selectedCategory, r.id);
+                  await refreshCustomData?.(selectedCategory);
             }
-          } catch (err: any) {
-            setError(err?.message ?? t('failed_delete_custom_item'));
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setError(msg ?? t('failed_delete_custom_item'));
           }
         }}
         onAddClick={
@@ -132,22 +134,23 @@ const CustomCategoryPage = () => {
           setEditItem(null);
         }}
         initialValues={editItem ? { datetime: editItem.datetime, note: editItem.note } : undefined}
-        onAdd={async ({ datetime, note }) => {
+          onAdd={async ({ datetime, note }) => {
           try {
             if (!selectedCategory) throw new Error(t('no_category_selected'));
             if (editItem) {
               if (updateCustomItem) {
-                await updateCustomItem(selectedCategory, editItem.id, datetime, note);
-                await refreshCustomData?.(selectedCategory);
+                  await updateCustomItem(selectedCategory, editItem.id, datetime, note);
+                  await refreshCustomData?.(selectedCategory);
               }
             } else {
               if (addCustomItem) {
-                await addCustomItem(selectedCategory, datetime, note);
-                await refreshCustomData?.(selectedCategory);
+                  await addCustomItem(selectedCategory, datetime, note);
+                  await refreshCustomData?.(selectedCategory);
               }
             }
-          } catch (err: any) {
-            if (editItem) setError(err?.message ?? t('failed_update_custom_item'));
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            if (editItem) setError(msg ?? t('failed_update_custom_item'));
           } finally {
             setAddOpen(false);
             setEditItem(null);
