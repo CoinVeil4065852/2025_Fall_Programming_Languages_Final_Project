@@ -25,6 +25,7 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import SUPPORTED_LOCALES from '../../i18n/languages';
 import { getProfile } from '../../services/auth';
 
 const data = [
@@ -123,20 +124,17 @@ const DashboardLayout = () => {
                 </Tooltip>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item
-                  onClick={() => {
-                    i18n.changeLanguage('en');
-                  }}
-                >
-                  {t('english')}
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() => {
-                    i18n.changeLanguage('zh-TW');
-                  }}
-                >
-                  {t('chinese')}
-                </Menu.Item>
+                {SUPPORTED_LOCALES.map((loc) => (
+                  <Menu.Item
+                    key={loc.code}
+                    onClick={() => {
+                      i18n.changeLanguage(loc.code);
+                    }}
+                    leftSection={<span style={{ fontSize: '1.2em' }}>{loc.flag}</span>}
+                  >
+                    {t(loc.labelKey)}
+                  </Menu.Item>
+                ))}
               </Menu.Dropdown>
             </Menu>
 
@@ -203,10 +201,8 @@ const DashboardLayout = () => {
 
         <AppShell.Section mt="auto">
           <Group justify="space-between" align="center" pl="xs" pr="xs">
-            <Text size="md">
-              {typeof name === 'string' && name ? name : t('username')}
-            </Text>
-              <Tooltip label={t('logout')}>
+            <Text size="md">{typeof name === 'string' && name ? name : t('username')}</Text>
+            <Tooltip label={t('logout')}>
               <ActionIcon
                 variant="default"
                 onClick={() => {

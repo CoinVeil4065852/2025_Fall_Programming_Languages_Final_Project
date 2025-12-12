@@ -1,0 +1,15 @@
+{
+  "title": "건강 추적기",
+  "description": "활동, 수면 및 물 섭취를 추적하기 위한 반응형 대시보드입니다.",
+  "language": "언어",
+  "english": "English",
+  "chinese": "中文",
+  "chinese_zh_tw": "繁體中文",
+  "chinese_zh_cn": "简体中文",
+  "spanish": "Español",
+  "french": "Français",
+  "japanese": "日本語",
+  "korean": "한국어",
+  "login": "로그인",
+  "register": "등록"
+}
