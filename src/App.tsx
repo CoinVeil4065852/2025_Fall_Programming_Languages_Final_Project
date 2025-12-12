@@ -9,7 +9,7 @@ import { theme } from './theme';
 
 const App = () => {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme='auto'>
       <Notifications />
       <AppDataProvider>
         <Router />
