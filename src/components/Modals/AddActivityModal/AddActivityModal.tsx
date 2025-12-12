@@ -52,6 +52,7 @@ const AddActivityModal: React.FC<Props> = ({
           <TextInput label={t('time')} type="datetime-local" {...form.getInputProps('time')} />
           <Select
             label={t('intensity')}
+            allowDeselect={false}
             data={[
               { value: 'low', label: t('intensity_low') },
               { value: 'moderate', label: t('intensity_medium') },
