@@ -4,10 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Group, Text } from '@mantine/core';
 import { useAppData } from '@/AppDataContext';
 import type { SleepRecord as ApiSleepRecord } from '@/services/types';
-import SleepProgressCard from '@/components/InfoCard/SleepProgressCard/SleepProgressCard';
-import SleepWeeklyCard from '@/components/InfoCard/SleepWeeklyCard/SleepWeeklyCard';
+import { SleepProgressCard, SleepWeeklyCard } from '@/components/InfoCard';
 import { aggregateByWeekday } from '@/utils/weekly';
-import AddSleepModal from '@/components/Modals/AddSleepModal/AddSleepModal';
+import { AddSleepModal } from '@/components/Modals';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiSleepRecord = { id: string; date: string; time?: string; hours: number };
@@ -56,7 +55,7 @@ const SleepPage = () => {
           try {
             setError(null);
             setDeleteLoadingId(r.id);
-            if (deleteSleep) await deleteSleep(r.id);
+            if (deleteSleep) {await deleteSleep(r.id);}
             showNotification({ title: t('delete'), message: t('deleted', { thing: t('sleep_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -94,10 +93,10 @@ const SleepPage = () => {
           try {
             setError(null);
             if (editItem) {
-              if (updateSleep) await updateSleep(editItem.id, time, Number(hours));
+              if (updateSleep) {await updateSleep(editItem.id, time, Number(hours));}
               showNotification({ title: t('edit_sleep'), message: t('updated', { thing: t('sleep_records') }), color: 'green' });
             } else {
-              if (addSleep) await addSleep(time, Number(hours));
+              if (addSleep) {await addSleep(time, Number(hours));}
               showNotification({ title: t('add_sleep'), message: t('created', { thing: t('sleep_records') }), color: 'green' });
             }
           } catch (e) {

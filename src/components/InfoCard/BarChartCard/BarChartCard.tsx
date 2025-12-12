@@ -37,7 +37,7 @@ const BarChartCard: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const d = data.slice(0, 7);
-  while (d.length < 7) d.push(0);
+  while (d.length < 7) {d.push(0);}
   const lbs = labels && labels.length >= 7 ? labels.slice(0, 7) : defaultLabels(t);
 
   const max = Math.max(1, ...d);

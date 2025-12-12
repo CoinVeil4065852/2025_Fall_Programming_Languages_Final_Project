@@ -31,4 +31,4 @@ export function aggregateByWeekday<T>(items: T[], getDate: (it: T) => DateLike |
   return out;
 }
 
-export default { mondayFirstDayIndex, aggregateByWeekday };
+// prefer named exports — no default export here

@@ -11,7 +11,7 @@ describe('CustomCategoryPage', () => {
     const fakeData: Record<string, CustomItem[]> = {};
     const created: Category = { id: 'new-id', categoryName: 'New Cat' };
     let createdCalled = false;
-    const createCustomCategory = async (name: string) => {
+    const createCustomCategory = async (_name: string) => {
       createdCalled = true;
       return created;
     };
@@ -115,10 +115,7 @@ describe('CustomCategoryPage', () => {
   test('deletes selected category when delete button clicked', async () => {
     const fakeCats: Category[] = [{ id: 'cat1', categoryName: 'Cat 1' }];
     const fakeData: Record<string, CustomItem[]> = { cat1: [] };
-    let deleteCalledWith: string | null = null;
-    const deleteCustomCategory = vi.fn(async (categoryId: string) => {
-      deleteCalledWith = categoryId;
-    });
+    const deleteCustomCategory = vi.fn(async (_categoryId: string) => {});
     const refreshCustomCategories = vi.fn(async () => {
       // simulate removal
     });

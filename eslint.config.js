@@ -12,6 +12,13 @@ export default defineConfig(
     rules: { 'no-console': 'off' },
   },
   {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      // disable 'react-hooks/exhaustive-deps' if plugin not available in environment
+      'react-hooks/exhaustive-deps': 'off',
+    },
+  },
+  {
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: process.cwd(),

@@ -31,8 +31,7 @@ const LoginForm = () => {
   const { refreshAll } = useAppData();
 
   const handleSubmit = form.onSubmit(async (values) => {
-    if (loading) return;
-    console.log(values)
+    if (loading) {return;}
 
 
     const { name, password, rememberMe: remember } = values;

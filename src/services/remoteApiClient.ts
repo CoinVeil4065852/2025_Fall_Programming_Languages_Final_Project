@@ -13,7 +13,7 @@ async function req(path: string, opts: RequestInit = {}) {
   }
   if (!res.ok) {
     const obj = json as Record<string, unknown> | null;
-    const errMessage = obj && typeof obj['message'] === 'string' ? (obj['message'] as string) : undefined;
+    const errMessage = obj && typeof obj.message === 'string' ? (obj.message as string) : undefined;
     const err = errMessage || res.statusText || 'API error';
     throw new Error(err);
   }
@@ -25,21 +25,21 @@ export const remoteApiClient: ApiClient = {
     const body = JSON.stringify({ name: creds.name, password: creds.password });
     const json = await req('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
     const obj = json as Record<string, unknown> | null;
-    const token: string | undefined = obj && typeof obj['token'] === 'string' ? (obj['token'] as string) : undefined;
-    if (!token) throw new Error('Login failed: no token returned');
+    const token: string | undefined = obj && typeof obj.token === 'string' ? (obj.token as string) : undefined;
+    if (!token) {throw new Error('Login failed: no token returned');}
     return { token } as AuthResponse;
   },
 
   async register(data) {
     const payload: Record<string, unknown> = { name: data.name, password: data.password };
-    if (data.age != null) payload.age = data.age;
-    if (data.weightKg != null) payload.weightKg = data.weightKg;
-    if (data.heightM != null) payload.heightM = data.heightM;
-    if (data.gender != null) payload.gender = data.gender;
+    if (data.age != null) {payload.age = data.age;}
+    if (data.weightKg != null) {payload.weightKg = data.weightKg;}
+    if (data.heightM != null) {payload.heightM = data.heightM;}
+    if (data.gender != null) {payload.gender = data.gender;}
     const json = await req('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const obj = json as Record<string, unknown> | null;
-    const token: string | undefined = obj && typeof obj['token'] === 'string' ? (obj['token'] as string) : undefined;
-    if (!token) throw new Error('Register failed: no token returned');
+    const token: string | undefined = obj && typeof obj.token === 'string' ? (obj.token as string) : undefined;
+    if (!token) {throw new Error('Register failed: no token returned');}
     return { token } as AuthResponse;
   },
 
@@ -51,8 +51,8 @@ export const remoteApiClient: ApiClient = {
   async getBMI(token) {
     const json = await req('/user/bmi', { headers: { Authorization: `Bearer ${token}` } });
     const obj = json as Record<string, unknown> | null;
-    const bmi = obj && typeof obj['bmi'] === 'number' ? (obj['bmi'] as number) : undefined;
-    if (typeof bmi !== 'number') throw new Error('Invalid BMI returned');
+    const bmi = obj && typeof obj.bmi === 'number' ? (obj.bmi as number) : undefined;
+    if (typeof bmi !== 'number') {throw new Error('Invalid BMI returned');}
     return bmi;
   },
 
@@ -126,15 +126,15 @@ export const remoteApiClient: ApiClient = {
   async sortActivityByDuration(token) {
     await req('/activities?sortBy=duration', { headers: { Authorization: `Bearer ${token}` } });
   },
-  async getCustomCategories(token?) {
+  async getCustomCategories(_token?) {
     const json = await req('/category/list', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     return (json || []) as Category[];
   },
-  async getCustomData(categoryId, token?) {
+  async getCustomData(categoryId, _token?) {
     const json = await req(`/category/${encodeURIComponent(categoryId)}/list`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     return (json || []) as CustomItem[];
   },
-  async createCustomCategory(categoryName, token?) {
+  async createCustomCategory(categoryName, _token?) {
     const json = await req('/category/create', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ categoryName }) });
     return json as Category;
   },

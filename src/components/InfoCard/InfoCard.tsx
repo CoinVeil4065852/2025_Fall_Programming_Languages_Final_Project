@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, Group, Stack, Text, Title } from '@mantine/core';
-import type { CardProps } from '@mantine/core';
+import { Card, Group, Stack, Text, Title, type CardProps } from '@mantine/core';
 
 export type InfoCardProps = Omit<CardProps, 'children'> & {
   title: React.ReactNode;

@@ -67,7 +67,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState<string | null>(null);
-  const { setColorScheme, clearColorScheme, colorScheme } = useMantineColorScheme();
+  const { setColorScheme, colorScheme } = useMantineColorScheme();
   useEffect(() => {
     const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     if (!token) {
@@ -78,10 +78,10 @@ const DashboardLayout = () => {
     (async () => {
       try {
         const profile = await getProfile(token);
-        if (mounted) setName(profile.name ?? null);
+        if (mounted) {setName(profile.name ?? null);}
       } catch (err) {
         // invalid token or request failed: redirect to login
-        if (mounted) setName(null);
+        if (mounted) {setName(null);}
         navigate('/login');
       }
     })();

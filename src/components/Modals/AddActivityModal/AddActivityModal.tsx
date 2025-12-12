@@ -17,15 +17,7 @@ type Props = {
   submitLabel?: string;
 };
 
-function toLocalDatetimeInput(date = new Date()) {
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  const yyyy = date.getFullYear();
-  const mm = pad(date.getMonth() + 1);
-  const dd = pad(date.getDate());
-  const hh = pad(date.getHours());
-  const min = pad(date.getMinutes());
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-}
+import { toLocalDatetimeInput } from '@/utils/datetime';
 
 const AddActivityModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValues, submitLabel }) => {
   const defaults: Values = {

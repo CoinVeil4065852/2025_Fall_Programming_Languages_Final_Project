@@ -1,6 +1,7 @@
 import React from 'react';
 import { Group, Stack, Text, Progress, Button } from '@mantine/core';
 import InfoCard, { InfoCardProps } from '../InfoCard';
+import { calcPercentage } from '@/utils/progress';
 import { useTranslation } from 'react-i18next';
 
 type Props = Omit<InfoCardProps, 'children' | 'title'> & {
@@ -11,7 +12,7 @@ type Props = Omit<InfoCardProps, 'children' | 'title'> & {
 
 const SleepProgressCard: React.FC<Props> = ({ currentHours = 6.5, goalHours = 8, onAddClick, ...infoCardProps }) => {
   const safeGoal = Math.max(0.1, goalHours);
-  const percent = Math.min(100, Math.max(0, (currentHours / safeGoal) * 100));
+  const percent = calcPercentage(currentHours, safeGoal);
   const remaining = Math.max(0, goalHours - currentHours);
 
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ const SleepProgressCard: React.FC<Props> = ({ currentHours = 6.5, goalHours = 8,
   return (
     <InfoCard title={t('daily_sleep')} {...infoCardProps}>
         
-      <Stack justify='center' align='center' gap={'md'}>
+      <Stack justify='center' align='center' gap="md">
         <Stack>
           <Group >
             <Text size="sm" c="dimmed">{t('last_7_days_average')}</Text>

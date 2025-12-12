@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button, Group, Stack, Text, Title } from '@mantine/core';
 import InfoCard, { InfoCardProps } from '../InfoCard';
+import { calcPercentage } from '@/utils/progress';
 import { useTranslation } from 'react-i18next';
 
 const WaterTankSvg = ({
@@ -110,7 +111,7 @@ const WaterProgressCard: React.FC<Props> = ({
   ...infoCardProps
 }) => {
   const safeGoal = Math.max(1, goalMl);
-  const percent = Math.min(100, Math.max(0, (currentMl / safeGoal) * 100));
+  const percent = calcPercentage(currentMl, safeGoal);
   // displayPercent intentionally removed - percent is used visually via svg
   const remainingMl = Math.max(0, goalMl - currentMl);
 

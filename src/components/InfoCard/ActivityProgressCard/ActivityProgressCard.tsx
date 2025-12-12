@@ -1,6 +1,7 @@
-import { IconClock, IconFlame, IconShoe, IconWalk } from '@tabler/icons-react';
+import { IconClock, IconFlame } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Card, Center, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
+import { calcPercentage } from '@/utils/progress';
+import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import { useAppData } from '../../../AppDataContext';
 import InfoCard from '../InfoCard';
 
@@ -27,7 +28,7 @@ const ActivityGauge = ({
   const endAngle = 405;
   const totalAngle = 270;
 
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  const percentage = calcPercentage(value, max);
   const progressAngle = startAngle + (percentage / 100) * totalAngle;
 
   // Helper to convert polar to cartesian
@@ -106,14 +107,12 @@ const ActivityGauge = ({
 type Props = {
   calories?: number;
   caloriesGoal?: number;
-  steps?: number;
   durationMinutes?: number;
 };
 
-const DailyActivityCard: React.FC<Props> = ({
+const ActivityProgressCard: React.FC<Props> = ({
   calories,
   caloriesGoal = 600,
-  steps = 5432,
   durationMinutes = 45,
 }) => {
   const { t } = useTranslation();
@@ -137,7 +136,7 @@ const DailyActivityCard: React.FC<Props> = ({
     // small age factor: +/- up to ~10% between ages 0..100 (clamped)
     const ageFactor = Math.max(0.9, Math.min(1.1, 1 - (age - 30) * 0.003));
 
-    if (!activity || activity.length === 0) return 0;
+    if (!activity || activity.length === 0) {return 0;}
 
     let total = 0;
     for (const rec of activity) {
@@ -175,7 +174,7 @@ const DailyActivityCard: React.FC<Props> = ({
         </Group>
         <Text size="xs" c="dimmed" className="mt-2 text-center">
           {t('you_hit_percent_of_goal', {
-            percent: Math.round((caloriesToShow / caloriesGoal) * 100),
+            percent: Math.round(calcPercentage(caloriesToShow, caloriesGoal)),
           })}
         </Text>
       </Stack>
@@ -183,4 +182,4 @@ const DailyActivityCard: React.FC<Props> = ({
   );
 };
 
-export default DailyActivityCard;
+export default ActivityProgressCard;

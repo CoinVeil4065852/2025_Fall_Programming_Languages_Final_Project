@@ -51,7 +51,7 @@ const AppDataContext = createContext<AppData | undefined>(undefined);
 
 export const useAppData = () => {
   const ctx = useContext(AppDataContext);
-  if (!ctx) throw new Error('useAppData must be used within AppDataProvider');
+  if (!ctx) {throw new Error('useAppData must be used within AppDataProvider');}
   return ctx;
 };
 
@@ -72,7 +72,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshProfile = async () => {
     try {
       const auth = token();
-      if (!auth) return setProfile(null);
+      if (!auth) {return setProfile(null);}
       const p = await api.getProfile(auth);
       setProfile(p || null);
     } catch (e) {
@@ -85,7 +85,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshWater = async () => {
     try {
       const auth = token();
-      if (!auth) return setWater([]);
+      if (!auth) {return setWater([]);}
       const recs = await api.getAllWater(auth);
       setWater(recs || []);
     } catch (e) {
@@ -98,7 +98,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshSleep = async () => {
     try {
       const auth = token();
-      if (!auth) return setSleep([]);
+      if (!auth) {return setSleep([]);}
       const recs = (api.getAllSleep ? await api.getAllSleep(auth) : []) as SleepRecord[];
       setSleep(recs || []);
     } catch (e) {
@@ -111,7 +111,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshActivity = async () => {
     try {
       const auth = token();
-      if (!auth) return setActivity([]);
+      if (!auth) {return setActivity([]);}
       const recs = await api.getAllActivity(auth);
       setActivity(recs || []);
     } catch (e) {
@@ -124,8 +124,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshCustomCategories = async () => {
     try {
       const auth = token();
-      if (!auth) return setCustomCategories([]);
-      if (!api.getCustomCategories) return setCustomCategories([]);
+      if (!auth) {return setCustomCategories([]);}
+      if (!api.getCustomCategories) {return setCustomCategories([]);}
       const cats = (await api.getCustomCategories(auth)) || [];
       setCustomCategories(cats);
     } catch (e) {
@@ -138,8 +138,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshCustomData = async (categoryId: string) => {
     try {
       const auth = token();
-      if (!auth) return;
-      if (!api.getCustomData) return;
+      if (!auth) {return;}
+      if (!api.getCustomData) {return;}
       const data = await api.getCustomData(categoryId, auth);
       setCustomData((prev) => ({ ...prev, [categoryId]: data || [] }));
     } catch (e) {
@@ -160,8 +160,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshBmi = async () => {
     try {
       const auth = token();
-      if (!auth) return setBmi(undefined);
-      if (!api.getBMI) return setBmi(undefined);
+      if (!auth) {return setBmi(undefined);}
+      if (!api.getBMI) {return setBmi(undefined);}
       const v = await api.getBMI(auth);
       setBmi(v);
     } catch (e) {
@@ -175,7 +175,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addWater = async (datetime: string, amountMl: number) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
+      if (!auth) {throw new Error(t('not_authenticated'));}
       const created = await api.addWater(auth, datetime, amountMl);
       await refreshWater();
       return created;
@@ -188,8 +188,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateWater = async (id: string, datetime: string, amountMl: number) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.updateWater) await api.updateWater(auth, id, datetime, amountMl);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.updateWater) {await api.updateWater(auth, id, datetime, amountMl);}
       await refreshWater();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -200,8 +200,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteWater = async (id: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.deleteWater) await api.deleteWater(auth, id);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.deleteWater) {await api.deleteWater(auth, id);}
       await refreshWater();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -212,7 +212,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addSleep = async (datetime: string, hours: number) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
+      if (!auth) {throw new Error(t('not_authenticated'));}
       const created = api.addSleep ? await api.addSleep(auth, datetime, hours) : undefined;
       await refreshSleep();
       return created;
@@ -225,8 +225,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateSleep = async (id: string, datetime: string, hours: number) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.updateSleep) await api.updateSleep(auth, id, datetime, hours);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.updateSleep) {await api.updateSleep(auth, id, datetime, hours);}
       await refreshSleep();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -237,8 +237,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteSleep = async (id: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.deleteSleep) await api.deleteSleep(auth, id);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.deleteSleep) {await api.deleteSleep(auth, id);}
       await refreshSleep();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -249,7 +249,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addActivity = async (datetime: string, minutes: number, intensity: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
+      if (!auth) {throw new Error(t('not_authenticated'));}
       const created = await api.addActivity(auth, datetime, minutes, intensity);
       await refreshActivity();
       return created;
@@ -262,8 +262,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateActivity = async (id: string, datetime: string, minutes: number, intensity: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.updateActivity) await api.updateActivity(auth, id, datetime, minutes, intensity);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.updateActivity) {await api.updateActivity(auth, id, datetime, minutes, intensity);}
       await refreshActivity();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -274,8 +274,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteActivity = async (id: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.deleteActivity) await api.deleteActivity(auth, id);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.deleteActivity) {await api.deleteActivity(auth, id);}
       await refreshActivity();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -286,7 +286,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const createCustomCategory = async (categoryName: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
+      if (!auth) {throw new Error(t('not_authenticated'));}
       const created = api.createCustomCategory ? await api.createCustomCategory(categoryName, auth) : undefined;
       await refreshCustomCategories();
       return created;
@@ -299,8 +299,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addCustomItem = async (categoryId: string, datetime: string, note: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.addCustomItem) await api.addCustomItem(auth, categoryId, datetime, note);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.addCustomItem) {await api.addCustomItem(auth, categoryId, datetime, note);}
       await refreshCustomData(categoryId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -311,8 +311,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateCustomItem = async (categoryId: string, itemId: string, datetime: string, note: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.updateCustomItem) await api.updateCustomItem(auth, categoryId, itemId, datetime, note);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.updateCustomItem) {await api.updateCustomItem(auth, categoryId, itemId, datetime, note);}
       await refreshCustomData(categoryId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -323,8 +323,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteCustomItem = async (categoryId: string, itemId: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.deleteCustomItem) await api.deleteCustomItem(auth, categoryId, itemId);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.deleteCustomItem) {await api.deleteCustomItem(auth, categoryId, itemId);}
       await refreshCustomData(categoryId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -335,8 +335,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const deleteCustomCategory = async (categoryId: string) => {
     try {
       const auth = token();
-      if (!auth) throw new Error(t('not_authenticated'));
-      if (api.deleteCustomCategory) await api.deleteCustomCategory(auth, categoryId);
+      if (!auth) {throw new Error(t('not_authenticated'));}
+      if (api.deleteCustomCategory) {await api.deleteCustomCategory(auth, categoryId);}
       // refresh categories and remove any local data for that category
       await refreshCustomCategories();
       setCustomData((prev) => {

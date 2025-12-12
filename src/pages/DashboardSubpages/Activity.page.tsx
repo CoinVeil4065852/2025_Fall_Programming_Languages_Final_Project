@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { showNotification } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
-import { Grid, Group, Text } from '@mantine/core';
-import ActivityProgressCard from '@/components/InfoCard/ActivityProgressCard/ActivityProgressCard';
-import ActivityWeeklyCard from '@/components/InfoCard/ActivityWeeklyCard/ActivityWeeklyCard';
+import { Group, Text } from '@mantine/core';
+import { ActivityProgressCard, ActivityWeeklyCard } from '@/components/InfoCard';
 import { aggregateByWeekday } from '@/utils/weekly';
-import AddActivityModal from '@/components/Modals/AddActivityModal/AddActivityModal';
+import { AddActivityModal } from '@/components/Modals';
 import RecordList from '../../components/RecordList/RecordList';
 import { useAppData } from '@/AppDataContext';
 import type { ActivityRecord as ApiActivityRecord } from '@/services/types';
@@ -45,7 +44,6 @@ const ActivityPage = () => {
       <ActivityProgressCard
         calories={Math.round(totalMinutes * 5)}
         caloriesGoal={600}
-        steps={0}
         durationMinutes={totalMinutes}
       />
       {error && (
@@ -72,7 +70,7 @@ const ActivityPage = () => {
           try {
             setError(null);
             setDeleteLoadingId(r.id);
-            if (deleteActivity) await deleteActivity(r.id);
+            if (deleteActivity) {await deleteActivity(r.id);}
             showNotification({ title: t('delete'), message: t('deleted', { thing: t('activity_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -111,10 +109,10 @@ const ActivityPage = () => {
             setError(null);
             const minutes = typeof duration === 'number' ? duration : Number(duration);
             if (editItem) {
-              if (updateActivity) await updateActivity(editItem.id, time, minutes, intensity || '');
+              if (updateActivity) {await updateActivity(editItem.id, time, minutes, intensity || '');}
               showNotification({ title: t('edit_activity'), message: t('updated', { thing: t('activity_records') }), color: 'green' });
             } else {
-              if (addActivity) await addActivity(time, minutes, intensity || '');
+              if (addActivity) {await addActivity(time, minutes, intensity || '');}
               showNotification({ title: t('add_activity'), message: t('created', { thing: t('activity_records') }), color: 'green' });
             }
           } catch (e) {

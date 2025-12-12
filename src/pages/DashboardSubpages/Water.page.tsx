@@ -4,10 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Group, Text } from '@mantine/core';
 import { useAppData } from '@/AppDataContext';
 import type { WaterRecord } from '@/services/types';
-import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
-import WaterWeeklyCard from '@/components/InfoCard/WaterWeeklyCard/WaterWeeklyCard';
+import { WaterProgressCard, WaterWeeklyCard } from '@/components/InfoCard';
 import { aggregateByWeekday } from '@/utils/weekly';
-import AddWaterModal from '@/components/Modals/AddWaterModal/AddWaterModal';
+import { AddWaterModal } from '@/components/Modals';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiWaterRecord = { id: string; date: string; time?: string; amountMl: number };
@@ -45,7 +44,7 @@ const WaterPage = () => {
       const hh = pad(now.getHours());
       const min = pad(now.getMinutes());
       const datetime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-      if (addWater) await addWater(datetime, 250);
+      if (addWater) {await addWater(datetime, 250);}
       showNotification({ title: t('add_250_ml'), message: t('add_250_ml_success'), color: 'green' });
         } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -84,7 +83,7 @@ const WaterPage = () => {
           try {
             setError(null);
             setDeleteLoadingId(r.id);
-            if (deleteWater) await deleteWater(r.id);
+            if (deleteWater) {await deleteWater(r.id);}
             showNotification({ title: t('delete'), message: t('deleted', { thing: t('water_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -122,10 +121,10 @@ const WaterPage = () => {
           try {
             setError(null);
             if (editItem) {
-              if (updateWater) await updateWater(editItem.id, time, amount);
+              if (updateWater) {await updateWater(editItem.id, time, amount);}
               showNotification({ title: t('edit_water'), message: t('updated', { thing: t('water_records') }), color: 'green' });
             } else {
-              if (addWater) await addWater(time, amount);
+              if (addWater) {await addWater(time, amount);}
               showNotification({ title: t('add_water'), message: t('created', { thing: t('water_records') }), color: 'green' });
             }
           } catch (e) {

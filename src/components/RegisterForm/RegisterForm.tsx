@@ -53,12 +53,12 @@ const RegisterForm = () => {
     validate: {
       name: (value: string) => {
         const v = value?.toString().trim();
-        if (!v) return t('username_required');
-        if (!/^[A-Za-z0-9_]+$/.test(v)) return t('username_invalid_chars');
+        if (!v) {return t('username_required');}
+        if (!/^[A-Za-z0-9_]+$/.test(v)) {return t('username_invalid_chars');}
         return null;
       },
       password: (value: string) => {
-        if (!value) return t('password_required');
+        if (!value) {return t('password_required');}
         const lengthOk = value.length >= 8;
         const hasLower = /[a-z]/.test(value);
         const hasUpper = /[A-Z]/.test(value);
@@ -69,27 +69,27 @@ const RegisterForm = () => {
         return null;
       },
       confirmPassword: (value: string, values: RegisterValues) => {
-        if (!value) return t('confirm_password_required');
+        if (!value) {return t('confirm_password_required');}
         return value === values.password ? null : t('passwords_mismatch');
       },
       age: (value: number | '') => {
-        if (value === '' || value === null || value === undefined) return t('age_required');
+        if (value === '' || value === null || value === undefined) {return t('age_required');}
         const n = Number(value);
         return Number.isFinite(n) ? null : t('age_invalid');
       },
       weight: (value: number | '') => {
-        if (value === '' || value === null || value === undefined) return t('weight_required');
+        if (value === '' || value === null || value === undefined) {return t('weight_required');}
         const n = Number(value);
         return Number.isFinite(n) ? null : t('weight_invalid');
       },
       height: (value: number | '') => {
-        if (value === '' || value === null || value === undefined) return t('height_required');
+        if (value === '' || value === null || value === undefined) {return t('height_required');}
         const n = Number(value);
         return Number.isFinite(n) ? null : t('height_invalid');
       },
       gender: (value: string) => {
         const allowed = ['male', 'female', 'other'];
-        if (!value) return t('gender_required');
+        if (!value) {return t('gender_required');}
         return allowed.includes(value) ? null : t('gender_invalid');
       },
     },
@@ -100,8 +100,7 @@ const RegisterForm = () => {
   const { refreshAll } = useAppData();
 
   const handleSubmit = form.onSubmit(async (values) => {
-    if (loading) return;
-    console.log(values);
+    if (loading) {return;}
 
     const { name, password, age, weight, height, gender } = values;
 
@@ -116,7 +115,7 @@ const RegisterForm = () => {
         password,
         age: toNumber(age),
         weightKg: toNumber(weight),
-        heightM: heightM,
+        heightM,
         gender: gender as 'male' | 'female' | 'other',
       });
 

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+// translations not used in Overview page; handled by components
 import type { User } from '@/services/types';
-import { Badge, Grid, Group, RingProgress, Stack, Text, ThemeIcon } from '@mantine/core';
-import ActivityProgressCard from '@/components/InfoCard/ActivityProgressCard/ActivityProgressCard';
-import WaterProgressCard from '@/components/InfoCard/WaterProgressCard/WaterProgressCard';
+import { Group } from '@mantine/core';
+import { ActivityProgressCard, WaterProgressCard, SleepProgressCard } from '@/components/InfoCard';
 import UserMetricsCard from '@/components/UserMetricsCard/UserMetricsCard';
 import { useAppData } from '../../AppDataContext';
-import SleepProgressCard from '../../components/InfoCard/SleepProgressCard/SleepProgressCard';
+// SleepProgressCard now imported from InfoCard barrel above
 
 const OverviewPage = () => {
   const [profile, setProfile] = useState<User | null>(null);
@@ -16,8 +15,7 @@ const OverviewPage = () => {
     setProfile(appProfile || null);
   }, [appProfile]);
 
-  // Use server-provided BMI only; do not compute locally
-  const bmi = apiBmi;
+  // Use server-provided BMI only; do not compute locally; UserMetricsCard will display BMI
 
   // derive card metrics from app data
   const todayDate = new Date().toISOString().split('T')[0];
@@ -40,7 +38,7 @@ const OverviewPage = () => {
   const activityToday = (activity || []).reduce(
     (acc, r) => {
       const d = (r.datetime || '').split('T')[0];
-      if (d !== todayDate) return acc;
+      if (d !== todayDate) {return acc;}
       const mins = r.minutes || 0;
       const factor = intensityFactor[(r.intensity || '').toLowerCase()] || 5;
       acc.duration += mins;
@@ -50,17 +48,11 @@ const OverviewPage = () => {
     { duration: 0, calories: 0 }
   );
 
-  const { t } = useTranslation();
+  // no local translations needed in Overview page
 
-  const bmiLabel = (v?: number) => {
-    if (!v) return { label: '—', color: 'gray' };
-    if (v < 18.5) return { label: t('bmi_underweight'), color: 'blue' };
-    if (v < 25) return { label: t('bmi_normal'), color: 'green' };
-    if (v < 30) return { label: t('bmi_overweight'), color: 'yellow' };
-    return { label: t('bmi_obese'), color: 'red' };
-  };
+  // BMI label and color handled by `UserMetricsCard` component
 
-  const bmiInfo = bmiLabel(bmi);
+  // BMI label and color handled by `UserMetricsCard` component
 
   return (
     <Group gap="md" justify="start" align="stretch">

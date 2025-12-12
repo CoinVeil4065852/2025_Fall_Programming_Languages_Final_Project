@@ -10,13 +10,13 @@ import RegisterPage from './pages/Register.page';
 
 const requireAuth = async () => {
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-  if (!token) return redirect('/login');
+  if (!token) {return redirect('/login');}
   return null;
 };
 
 const forwardIfAuth = async () => {
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-  if (token) return redirect('/dashboard');
+  if (token) {return redirect('/dashboard');}
   return null;
 };
 

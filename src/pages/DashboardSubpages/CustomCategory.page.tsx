@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Grid, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { useAppData } from '@/AppDataContext';
-import AddCustomItemModal from '@/components/Modals/AddCustomItemModal/AddCustomItemModal';
+import { AddCustomItemModal } from '@/components/Modals';
 import { CustomItem, Category } from '@/services/types';
 import RecordList from '../../components/RecordList/RecordList';
 
@@ -47,7 +47,7 @@ const CustomCategoryPage = () => {
 
   // refresh data when a category is selected (including initial mount)
   useEffect(() => {
-    if (!selectedCategory) return;
+    if (!selectedCategory) {return;}
     // refresh data for the selected category when it changes or when component mounts
     refreshCustomData?.(selectedCategory);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,11 +61,11 @@ const CustomCategoryPage = () => {
   }));
 
   const createCategory = async () => {
-    if (!newCategory) return;
+    if (!newCategory) {return;}
     try {
       setError(null);
       setCreateLoading(true);
-      if (!createCustomCategory) throw new Error(t('endpoint_not_implemented'));
+      if (!createCustomCategory) {throw new Error(t('endpoint_not_implemented'));}
       const created = await createCustomCategory(newCategory);
       // if created, select the new category and initialize its list
       if (created?.id) {
@@ -85,13 +85,14 @@ const CustomCategoryPage = () => {
   };
 
   const handleDeleteCategory = async () => {
-    if (!selectedCategory) return;
-    const ok = confirm(t('confirm_delete_category') ?? 'Delete this category and all its items?');
-    if (!ok) return;
+    if (!selectedCategory) {return;}
+    // eslint-disable-next-line no-alert
+    const ok = window.confirm(t('confirm_delete_category') ?? 'Delete this category and all its items?');
+    if (!ok) {return;}
     try {
       setError(null);
       setDeleteCategoryLoading(true);
-      if (deleteCustomCategory) await deleteCustomCategory(selectedCategory);
+      if (deleteCustomCategory) {await deleteCustomCategory(selectedCategory);}
       // after deletion, clear selection; the effect watching customCategories will pick a default
       setSelected(null);
       showNotification({ title: t('delete'), message: t('category_deleted', { name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '' }), color: 'green' });
@@ -193,23 +194,21 @@ const CustomCategoryPage = () => {
         initialValues={editItem ? { datetime: editItem.datetime, note: editItem.note } : undefined}
           onAdd={async ({ datetime, note }) => {
           try {
-            if (!selectedCategory) throw new Error(t('no_category_selected'));
+            if (!selectedCategory) {throw new Error(t('no_category_selected'));}
             if (editItem) {
               if (updateCustomItem) {
                   await updateCustomItem(selectedCategory, editItem.id, datetime, note);
                   await refreshCustomData?.(selectedCategory);
                   showNotification({ title: t('edit_item'), message: t('saved', { thing: t('edit_item') }), color: 'green' });
               }
-            } else {
-              if (addCustomItem) {
+            } else if (addCustomItem) {
                   await addCustomItem(selectedCategory, datetime, note);
                   await refreshCustomData?.(selectedCategory);
                   showNotification({ title: t('add_item'), message: t('created', { thing: t('add_item') }), color: 'green' });
               }
-            }
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            if (editItem) setError(msg ?? t('failed_update_custom_item'));
+            if (editItem) {setError(msg ?? t('failed_update_custom_item'));}
             showNotification({ title: t(editItem ? 'failed_update_custom_item' : 'failed_add_custom_item'), message: msg, color: 'red' });
           } finally {
             setAddOpen(false);
