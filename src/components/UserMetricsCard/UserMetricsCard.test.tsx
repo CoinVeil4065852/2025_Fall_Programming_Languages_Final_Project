@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render } from '../../../test-utils';
 import UserMetricsCard from './UserMetricsCard';
 

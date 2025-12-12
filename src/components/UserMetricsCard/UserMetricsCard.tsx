@@ -1,16 +1,26 @@
 import React from 'react';
+import { IconActivity, IconRuler, IconScale, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Center, Group, Stack, Text ,SimpleGrid, Avatar, Divider, ThemeIcon, MantineColor} from '@mantine/core';
+import {
+  Avatar,
+  Badge,
+  Center,
+  Divider,
+  Group,
+  MantineColor,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
 import { InfoCard } from '@/components/InfoCard';
 import type { User } from '@/services/types';
-import { IconActivity, IconRuler, IconScale, IconUser } from '@tabler/icons-react';
 
 type Props = {
   profile?: User | null;
   error?: string | null;
   bmi?: number | undefined;
 };
-
 
 const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
   const { t } = useTranslation();
@@ -19,10 +29,18 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
   const bmi = apiBmi;
 
   const bmiLabel = (v?: number) => {
-    if (!v) {return { label: '—', color: 'gray' };}
-    if (v < 18.5) {return { label: t('bmi_underweight'), color: 'blue' };}
-    if (v < 25) {return { label: t('bmi_normal'), color: 'green' };}
-    if (v < 30) {return { label: t('bmi_overweight'), color: 'yellow' };}
+    if (!v) {
+      return { label: '—', color: 'gray' };
+    }
+    if (v < 18.5) {
+      return { label: t('bmi_underweight'), color: 'blue' };
+    }
+    if (v < 25) {
+      return { label: t('bmi_normal'), color: 'green' };
+    }
+    if (v < 30) {
+      return { label: t('bmi_overweight'), color: 'yellow' };
+    }
     return { label: t('bmi_obese'), color: 'red' };
   };
 
@@ -84,7 +102,11 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
                 {t('height')}
               </Text>
               <Text fw={700} size="lg">
-                {profile?.heightM ? (profile.heightM >= 1 ? Math.round(profile.heightM * 100) : profile.heightM) : '—'}
+                {profile?.heightM
+                  ? profile.heightM >= 1
+                    ? Math.round(profile.heightM * 100)
+                    : profile.heightM
+                  : '—'}
                 <Text span size="sm" c="dimmed" fw={400}>
                   {profile?.heightM ? (profile.heightM >= 1 ? t('cm') : t('m')) : ''}
                 </Text>
@@ -93,7 +115,12 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
 
             {/* BMI Value */}
             <Stack gap={4} align="center">
-              <ThemeIcon variant="light" color={bmiInfo.color as MantineColor} radius="xl" size="md">
+              <ThemeIcon
+                variant="light"
+                color={bmiInfo.color as MantineColor}
+                radius="xl"
+                size="md"
+              >
                 <IconActivity size={18} />
               </ThemeIcon>
               <Text size="xs" c="dimmed" mt={4}>

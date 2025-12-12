@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { showNotification } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { Group, Text } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
 import { useAppData } from '@/AppDataContext';
-import type { SleepRecord as ApiSleepRecord } from '@/services/types';
 import { SleepProgressCard, SleepWeeklyCard } from '@/components/InfoCard';
-import { aggregateByWeekday } from '@/utils/weekly';
 import { AddSleepModal } from '@/components/Modals';
+import type { SleepRecord as ApiSleepRecord } from '@/services/types';
+import { aggregateByWeekday } from '@/utils/weekly';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiSleepRecord = { id: string; date: string; time?: string; hours: number };
@@ -41,7 +41,13 @@ const SleepPage = () => {
           {error}
         </Text>
       )}
-      <SleepWeeklyCard data={aggregateByWeekday(recordsFromCtx, (r) => (r.date ? `${r.date}T00:00` : ''), (r) => r.hours)} />
+      <SleepWeeklyCard
+        data={aggregateByWeekday(
+          recordsFromCtx,
+          (r) => (r.date ? `${r.date}T00:00` : ''),
+          (r) => r.hours
+        )}
+      />
 
       <RecordList
         title={t('sleep_records')}
@@ -55,14 +61,19 @@ const SleepPage = () => {
           try {
             setError(null);
             setDeleteLoadingId(r.id);
-            if (deleteSleep) {await deleteSleep(r.id);}
-            showNotification({ title: t('delete'), message: t('deleted', { thing: t('sleep_records') }), color: 'green' });
+            if (deleteSleep) {
+              await deleteSleep(r.id);
+            }
+            showNotification({
+              title: t('delete'),
+              message: t('deleted', { thing: t('sleep_records') }),
+              color: 'green',
+            });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_sleep'));
             showNotification({ title: t('failed_delete_sleep'), message: msg, color: 'red' });
-          }
-          finally {
+          } finally {
             setDeleteLoadingId(null);
           }
         }}
@@ -93,16 +104,32 @@ const SleepPage = () => {
           try {
             setError(null);
             if (editItem) {
-              if (updateSleep) {await updateSleep(editItem.id, time, Number(hours));}
-              showNotification({ title: t('edit_sleep'), message: t('updated', { thing: t('sleep_records') }), color: 'green' });
+              if (updateSleep) {
+                await updateSleep(editItem.id, time, Number(hours));
+              }
+              showNotification({
+                title: t('edit_sleep'),
+                message: t('updated', { thing: t('sleep_records') }),
+                color: 'green',
+              });
             } else {
-              if (addSleep) {await addSleep(time, Number(hours));}
-              showNotification({ title: t('add_sleep'), message: t('created', { thing: t('sleep_records') }), color: 'green' });
+              if (addSleep) {
+                await addSleep(time, Number(hours));
+              }
+              showNotification({
+                title: t('add_sleep'),
+                message: t('created', { thing: t('sleep_records') }),
+                color: 'green',
+              });
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             setError(msg ?? (editItem ? t('failed_update_sleep') : t('failed_add_sleep')));
-            showNotification({ title: t(editItem ? 'failed_update_sleep' : 'failed_add_sleep'), message: msg, color: 'red' });
+            showNotification({
+              title: t(editItem ? 'failed_update_sleep' : 'failed_add_sleep'),
+              message: msg,
+              color: 'red',
+            });
           } finally {
             setAddOpen(false);
             setEditItem(null);

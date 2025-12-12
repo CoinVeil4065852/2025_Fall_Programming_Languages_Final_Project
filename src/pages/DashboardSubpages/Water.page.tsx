@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { showNotification } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { Group, Text } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
 import { useAppData } from '@/AppDataContext';
-import type { WaterRecord } from '@/services/types';
 import { WaterProgressCard, WaterWeeklyCard } from '@/components/InfoCard';
-import { aggregateByWeekday } from '@/utils/weekly';
 import { AddWaterModal } from '@/components/Modals';
+import type { WaterRecord } from '@/services/types';
+import { aggregateByWeekday } from '@/utils/weekly';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiWaterRecord = { id: string; date: string; time?: string; amountMl: number };
@@ -44,9 +44,15 @@ const WaterPage = () => {
       const hh = pad(now.getHours());
       const min = pad(now.getMinutes());
       const datetime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-      if (addWater) {await addWater(datetime, 250);}
-      showNotification({ title: t('add_250_ml'), message: t('add_250_ml_success'), color: 'green' });
-        } catch (err) {
+      if (addWater) {
+        await addWater(datetime, 250);
+      }
+      showNotification({
+        title: t('add_250_ml'),
+        message: t('add_250_ml_success'),
+        color: 'green',
+      });
+    } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_add_250ml'));
     } finally {
@@ -68,7 +74,13 @@ const WaterPage = () => {
           {error}
         </Text>
       )}
-      <WaterWeeklyCard data={aggregateByWeekday(uiRecords, (r) => (r.date ? `${r.date}T00:00` : ''), (r) => r.amountMl)} />
+      <WaterWeeklyCard
+        data={aggregateByWeekday(
+          uiRecords,
+          (r) => (r.date ? `${r.date}T00:00` : ''),
+          (r) => r.amountMl
+        )}
+      />
 
       <RecordList
         title={t('water_records')}
@@ -83,14 +95,19 @@ const WaterPage = () => {
           try {
             setError(null);
             setDeleteLoadingId(r.id);
-            if (deleteWater) {await deleteWater(r.id);}
-            showNotification({ title: t('delete'), message: t('deleted', { thing: t('water_records') }), color: 'green' });
+            if (deleteWater) {
+              await deleteWater(r.id);
+            }
+            showNotification({
+              title: t('delete'),
+              message: t('deleted', { thing: t('water_records') }),
+              color: 'green',
+            });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_record'));
             showNotification({ title: t('failed_delete_record'), message: msg, color: 'red' });
-          }
-          finally {
+          } finally {
             setDeleteLoadingId(null);
           }
         }}
@@ -121,11 +138,23 @@ const WaterPage = () => {
           try {
             setError(null);
             if (editItem) {
-              if (updateWater) {await updateWater(editItem.id, time, amount);}
-              showNotification({ title: t('edit_water'), message: t('updated', { thing: t('water_records') }), color: 'green' });
+              if (updateWater) {
+                await updateWater(editItem.id, time, amount);
+              }
+              showNotification({
+                title: t('edit_water'),
+                message: t('updated', { thing: t('water_records') }),
+                color: 'green',
+              });
             } else {
-              if (addWater) {await addWater(time, amount);}
-              showNotification({ title: t('add_water'), message: t('created', { thing: t('water_records') }), color: 'green' });
+              if (addWater) {
+                await addWater(time, amount);
+              }
+              showNotification({
+                title: t('add_water'),
+                message: t('created', { thing: t('water_records') }),
+                color: 'green',
+              });
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

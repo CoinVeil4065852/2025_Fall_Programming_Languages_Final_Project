@@ -13,7 +13,12 @@ export type AuthResponse = { token: string };
 
 export type WaterRecord = { id: string; datetime: string; amountMl: number };
 export type SleepRecord = { id: string; datetime: string; hours: number };
-export type ActivityRecord = { id: string; datetime: string; minutes: number; intensity: 'low' | 'moderate' | 'high' | string };
+export type ActivityRecord = {
+  id: string;
+  datetime: string;
+  minutes: number;
+  intensity: 'low' | 'moderate' | 'high' | string;
+};
 export type Category = { id: string; categoryName: string };
 export type CustomItem = { id: string; categoryId?: string; datetime: string; note: string };
 
@@ -36,13 +41,23 @@ export interface ApiClient {
   // Water
   addWater: (token: string, datetime: string, amountMl: number) => Promise<WaterRecord>;
   getAllWater: (token: string) => Promise<WaterRecord[]>;
-  updateWater?: (token: string, id: string, datetime?: string, amountMl?: number) => Promise<WaterRecord>;
+  updateWater?: (
+    token: string,
+    id: string,
+    datetime?: string,
+    amountMl?: number
+  ) => Promise<WaterRecord>;
   deleteWater?: (token: string, id: string) => Promise<void>;
 
   // Sleep
   addSleep: (token: string, datetime: string, hours: number) => Promise<SleepRecord>;
   getAllSleep?: (token: string) => Promise<SleepRecord[]>;
-  updateSleep?: (token: string, id: string, datetime?: string, hours?: number) => Promise<SleepRecord>;
+  updateSleep?: (
+    token: string,
+    id: string,
+    datetime?: string,
+    hours?: number
+  ) => Promise<SleepRecord>;
   deleteSleep?: (token: string, id: string) => Promise<void>;
 
   // Activity

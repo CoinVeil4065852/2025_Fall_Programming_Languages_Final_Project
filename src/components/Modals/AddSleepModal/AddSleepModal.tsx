@@ -1,6 +1,7 @@
 import React from 'react';
-import { NumberInput, Stack, TextInput } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+import { NumberInput, Stack, TextInput } from '@mantine/core';
+import { toLocalDatetimeInput } from '@/utils/datetime';
 import BaseAddRecordModal from '../BaseAddRecordModal/BaseAddRecordModal';
 
 type Values = {
@@ -15,8 +16,6 @@ type Props = {
   initialValues?: Values;
   submitLabel?: string;
 };
-
-import { toLocalDatetimeInput } from '@/utils/datetime';
 
 const AddSleepModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValues, submitLabel }) => {
   const defaults: Values = {

@@ -1,7 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import BarChartCard from '../BarChartCard/BarChartCard';
 import { InfoCardProps } from '../InfoCard';
-import { useTranslation } from 'react-i18next';
 
 type Props = Omit<InfoCardProps, 'children' | 'title'> & {
   data?: number[];
@@ -12,7 +12,13 @@ const WaterWeeklyCard: React.FC<Props> = ({ data, labels, ...infoCardProps }) =>
   const { t } = useTranslation();
 
   return (
-    <BarChartCard title={t('weekly_water')} data={data} labels={labels} unitLabel={t('milliliters')} {...infoCardProps} />
+    <BarChartCard
+      title={t('weekly_water')}
+      data={data}
+      labels={labels}
+      unitLabel={t('milliliters')}
+      {...infoCardProps}
+    />
   );
 };
 

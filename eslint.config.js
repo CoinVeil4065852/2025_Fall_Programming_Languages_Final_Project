@@ -1,6 +1,7 @@
 import mantine from 'eslint-config-mantine';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 // @ts-check
 export default defineConfig(
@@ -13,9 +14,9 @@ export default defineConfig(
   },
   {
     files: ['**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooksPlugin },
     rules: {
-      // disable 'react-hooks/exhaustive-deps' if plugin not available in environment
-      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
   {

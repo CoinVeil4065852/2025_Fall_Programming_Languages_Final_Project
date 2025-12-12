@@ -4,7 +4,7 @@ import { Button, Grid, Group, Select, Stack, Text, TextInput } from '@mantine/co
 import { showNotification } from '@mantine/notifications';
 import { useAppData } from '@/AppDataContext';
 import { AddCustomItemModal } from '@/components/Modals';
-import { CustomItem, Category } from '@/services/types';
+import { Category, CustomItem } from '@/services/types';
 import RecordList from '../../components/RecordList/RecordList';
 
 type UiCustomRecord = { id: string; date: string; time: string; note: string };
@@ -43,15 +43,16 @@ const CustomCategoryPage = () => {
     ) {
       setSelected(customCategories[0].id);
     }
-  }, [customCategories]);
+  }, [customCategories, selectedCategory]);
 
   // refresh data when a category is selected (including initial mount)
   useEffect(() => {
-    if (!selectedCategory) {return;}
+    if (!selectedCategory) {
+      return;
+    }
     // refresh data for the selected category when it changes or when component mounts
     refreshCustomData?.(selectedCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory]);
+  }, [selectedCategory, refreshCustomData]);
 
   const uiRecords: UiCustomRecord[] = (customData?.[selectedCategory ?? ''] ?? []).map((item) => ({
     id: String(item.id ?? ''),
@@ -61,11 +62,15 @@ const CustomCategoryPage = () => {
   }));
 
   const createCategory = async () => {
-    if (!newCategory) {return;}
+    if (!newCategory) {
+      return;
+    }
     try {
       setError(null);
       setCreateLoading(true);
-      if (!createCustomCategory) {throw new Error(t('endpoint_not_implemented'));}
+      if (!createCustomCategory) {
+        throw new Error(t('endpoint_not_implemented'));
+      }
       const created = await createCustomCategory(newCategory);
       // if created, select the new category and initialize its list
       if (created?.id) {
@@ -73,7 +78,11 @@ const CustomCategoryPage = () => {
         await refreshCustomData?.(created.id);
       }
       setNewCategory('');
-      showNotification({ title: t('create'), message: t('category_created', { name: newCategory }), color: 'green' });
+      showNotification({
+        title: t('create'),
+        message: t('category_created', { name: newCategory }),
+        color: 'green',
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_create_category'));
@@ -85,17 +94,31 @@ const CustomCategoryPage = () => {
   };
 
   const handleDeleteCategory = async () => {
-    if (!selectedCategory) {return;}
+    if (!selectedCategory) {
+      return;
+    }
     // eslint-disable-next-line no-alert
-    const ok = window.confirm(t('confirm_delete_category') ?? 'Delete this category and all its items?');
-    if (!ok) {return;}
+    const ok = window.confirm(
+      t('confirm_delete_category') ?? 'Delete this category and all its items?'
+    );
+    if (!ok) {
+      return;
+    }
     try {
       setError(null);
       setDeleteCategoryLoading(true);
-      if (deleteCustomCategory) {await deleteCustomCategory(selectedCategory);}
+      if (deleteCustomCategory) {
+        await deleteCustomCategory(selectedCategory);
+      }
       // after deletion, clear selection; the effect watching customCategories will pick a default
       setSelected(null);
-      showNotification({ title: t('delete'), message: t('category_deleted', { name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '' }), color: 'green' });
+      showNotification({
+        title: t('delete'),
+        message: t('category_deleted', {
+          name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '',
+        }),
+        color: 'green',
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_delete_custom_category'));
@@ -125,11 +148,20 @@ const CustomCategoryPage = () => {
               onChange={(e) => setNewCategory(e.currentTarget.value)}
               placeholder={t('new_category_name')}
             />
-            <Button onClick={createCategory} loading={createLoading} disabled={createLoading || !newCategory}>
+            <Button
+              onClick={createCategory}
+              loading={createLoading}
+              disabled={createLoading || !newCategory}
+            >
               {t('create')}
             </Button>
             {selectedCategory && (
-              <Button color="red" onClick={handleDeleteCategory} loading={deleteCategoryLoading} disabled={deleteCategoryLoading}>
+              <Button
+                color="red"
+                onClick={handleDeleteCategory}
+                loading={deleteCategoryLoading}
+                disabled={deleteCategoryLoading}
+              >
                 {t('delete')}
               </Button>
             )}
@@ -146,10 +178,16 @@ const CustomCategoryPage = () => {
       {/** derive which fields to show and explicitly hide `datetime` for custom categories */}
       <RecordList
         style={{ width: '100%' }}
-            title={selectedCategory ? t('records_for', { name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '' }) : t('select_a_category')}
+        title={
+          selectedCategory
+            ? t('records_for', {
+                name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '',
+              })
+            : t('select_a_category')
+        }
         records={uiRecords}
         deleteLoadingId={deleteLoadingId}
-          onEdit={(r) => {
+        onEdit={(r) => {
           setEditItem(
             customData[selectedCategory ?? ''].find(
               (item) => String(item.id) === r.id
@@ -157,23 +195,26 @@ const CustomCategoryPage = () => {
           );
           setAddOpen(true);
         }}
-            onDelete={async (r) => {
+        onDelete={async (r) => {
           try {
             setError(null);
-                setDeleteLoadingId(r.id);
-                if (selectedCategory && deleteCustomItem) {
-                      await deleteCustomItem(selectedCategory, r.id);
-                      await refreshCustomData?.(selectedCategory);
-                      showNotification({ title: t('delete'), message: t('deleted', { thing: t('records') }), color: 'green' });
-                }
+            setDeleteLoadingId(r.id);
+            if (selectedCategory && deleteCustomItem) {
+              await deleteCustomItem(selectedCategory, r.id);
+              await refreshCustomData?.(selectedCategory);
+              showNotification({
+                title: t('delete'),
+                message: t('deleted', { thing: t('records') }),
+                color: 'green',
+              });
+            }
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_custom_item'));
-                showNotification({ title: t('failed_delete_custom_item'), message: msg, color: 'red' });
+            showNotification({ title: t('failed_delete_custom_item'), message: msg, color: 'red' });
+          } finally {
+            setDeleteLoadingId(null);
           }
-              finally {
-                setDeleteLoadingId(null);
-              }
         }}
         onAddClick={
           selectedCategory
@@ -192,24 +233,40 @@ const CustomCategoryPage = () => {
           setEditItem(null);
         }}
         initialValues={editItem ? { datetime: editItem.datetime, note: editItem.note } : undefined}
-          onAdd={async ({ datetime, note }) => {
+        onAdd={async ({ datetime, note }) => {
           try {
-            if (!selectedCategory) {throw new Error(t('no_category_selected'));}
+            if (!selectedCategory) {
+              throw new Error(t('no_category_selected'));
+            }
             if (editItem) {
               if (updateCustomItem) {
-                  await updateCustomItem(selectedCategory, editItem.id, datetime, note);
-                  await refreshCustomData?.(selectedCategory);
-                  showNotification({ title: t('edit_item'), message: t('saved', { thing: t('edit_item') }), color: 'green' });
+                await updateCustomItem(selectedCategory, editItem.id, datetime, note);
+                await refreshCustomData?.(selectedCategory);
+                showNotification({
+                  title: t('edit_item'),
+                  message: t('saved', { thing: t('edit_item') }),
+                  color: 'green',
+                });
               }
             } else if (addCustomItem) {
-                  await addCustomItem(selectedCategory, datetime, note);
-                  await refreshCustomData?.(selectedCategory);
-                  showNotification({ title: t('add_item'), message: t('created', { thing: t('add_item') }), color: 'green' });
-              }
+              await addCustomItem(selectedCategory, datetime, note);
+              await refreshCustomData?.(selectedCategory);
+              showNotification({
+                title: t('add_item'),
+                message: t('created', { thing: t('add_item') }),
+                color: 'green',
+              });
+            }
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            if (editItem) {setError(msg ?? t('failed_update_custom_item'));}
-            showNotification({ title: t(editItem ? 'failed_update_custom_item' : 'failed_add_custom_item'), message: msg, color: 'red' });
+            if (editItem) {
+              setError(msg ?? t('failed_update_custom_item'));
+            }
+            showNotification({
+              title: t(editItem ? 'failed_update_custom_item' : 'failed_add_custom_item'),
+              message: msg,
+              color: 'red',
+            });
           } finally {
             setAddOpen(false);
             setEditItem(null);

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { Group } from '@mantine/core';
+import { ActivityProgressCard, SleepProgressCard, WaterProgressCard } from '@/components/InfoCard';
+import UserMetricsCard from '@/components/UserMetricsCard/UserMetricsCard';
 // translations not used in Overview page; handled by components
 import type { User } from '@/services/types';
-import { Group } from '@mantine/core';
-import { ActivityProgressCard, WaterProgressCard, SleepProgressCard } from '@/components/InfoCard';
-import UserMetricsCard from '@/components/UserMetricsCard/UserMetricsCard';
 import { useAppData } from '../../AppDataContext';
+
 // SleepProgressCard now imported from InfoCard barrel above
 
 const OverviewPage = () => {
@@ -38,7 +39,9 @@ const OverviewPage = () => {
   const activityToday = (activity || []).reduce(
     (acc, r) => {
       const d = (r.datetime || '').split('T')[0];
-      if (d !== todayDate) {return acc;}
+      if (d !== todayDate) {
+        return acc;
+      }
       const mins = r.minutes || 0;
       const factor = intensityFactor[(r.intensity || '').toLowerCase()] || 5;
       acc.duration += mins;

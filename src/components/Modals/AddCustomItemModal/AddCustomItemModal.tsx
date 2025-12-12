@@ -1,13 +1,14 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    import React from 'react';
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    import { Stack, TextInput } from '@mantine/core';
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    import { useTranslation } from 'react-i18next';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Stack, TextInput } from '@mantine/core';
+import { toLocalDatetimeInput } from '@/utils/datetime';
 import BaseAddRecordModal from '../BaseAddRecordModal/BaseAddRecordModal';
 
 type Values = {
   datetime: string;
   note: string;
 };
-                                                                                                                                                    
+
 type Props = {
   opened: boolean;
   onClose: () => void;
@@ -16,9 +17,13 @@ type Props = {
   submitLabel?: string;
 };
 
-import { toLocalDatetimeInput } from '@/utils/datetime';
-
-const AddCustomItemModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValues, submitLabel }) => {
+const AddCustomItemModal: React.FC<Props> = ({
+  opened,
+  onClose,
+  onAdd,
+  initialValues,
+  submitLabel,
+}) => {
   const defaults: Values = {
     datetime: toLocalDatetimeInput(new Date()),
     note: '',

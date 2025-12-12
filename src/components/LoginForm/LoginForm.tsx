@@ -1,11 +1,25 @@
 import { useState } from 'react';
-import { Paper, TextInput, PasswordInput, Checkbox, Button, Stack, Title, Text, Center, Box, LoadingOverlay, Anchor, Group } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { login as authLogin } from '../../services/auth';
+import {
+  Anchor,
+  Box,
+  Button,
+  Center,
+  Checkbox,
+  Group,
+  LoadingOverlay,
+  Paper,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
 import type { AuthResponse } from '@/services/types';
 import { useAppData } from '../../AppDataContext';
-import { useTranslation } from 'react-i18next';
-import { useForm } from '@mantine/form';
+import { login as authLogin } from '../../services/auth';
 
 type LoginResult = AuthResponse;
 
@@ -20,8 +34,8 @@ const LoginForm = () => {
     },
 
     validate: {
-      name: (value) => value.trim() ? null : t('invalid_username'),
-      password: (value) => value.trim() ? null : t('invalid_password'),
+      name: (value) => (value.trim() ? null : t('invalid_username')),
+      password: (value) => (value.trim() ? null : t('invalid_password')),
     },
   });
   const [loading, setLoading] = useState(false);
@@ -31,8 +45,9 @@ const LoginForm = () => {
   const { refreshAll } = useAppData();
 
   const handleSubmit = form.onSubmit(async (values) => {
-    if (loading) {return;}
-
+    if (loading) {
+      return;
+    }
 
     const { name, password, rememberMe: remember } = values;
 
@@ -42,8 +57,12 @@ const LoginForm = () => {
       if (result.token) {
         const storage = remember ? localStorage : sessionStorage;
         storage.setItem('authToken', result.token);
-          // refresh app data (profile, records)
-          try { await refreshAll(); } catch (e) { /* ignore */ }
+        // refresh app data (profile, records)
+        try {
+          await refreshAll();
+        } catch (e) {
+          /* ignore */
+        }
       }
       // Navigate to home after successful login
       navigate('/dashboard', { replace: true });
@@ -53,16 +72,22 @@ const LoginForm = () => {
     } finally {
       setLoading(false);
     }
-  })
+  });
 
   return (
     <Box pos="relative">
-      <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-      <Paper shadow='md' radius="md" p="xl" withBorder style={{ maxWidth: 420, margin: '2rem auto' }}>
+      <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
+      <Paper
+        shadow="md"
+        radius="md"
+        p="xl"
+        withBorder
+        style={{ maxWidth: 420, margin: '2rem auto' }}
+      >
         <form onSubmit={handleSubmit} noValidate>
           <Stack gap="sm">
             <Center>
-              <Title order={3} >{t('title')}</Title>
+              <Title order={3}>{t('title')}</Title>
             </Center>
 
             <TextInput
@@ -70,7 +95,6 @@ const LoginForm = () => {
               placeholder={t('username_placeholder')}
               key={form.key('name')}
               {...form.getInputProps('name')}
-
               autoComplete="username"
             />
 
@@ -79,7 +103,6 @@ const LoginForm = () => {
               placeholder={t('password_placeholder')}
               key={form.key('password')}
               {...form.getInputProps('password')}
-
               autoComplete="current-password"
             />
 
@@ -98,8 +121,8 @@ const LoginForm = () => {
             <Button type="submit" fullWidth loading={loading} mt="md">
               {t('login')}
             </Button>
-            <Group  justify='center'>
-              <Text size="sm" c="dimmed" >
+            <Group justify="center">
+              <Text size="sm" c="dimmed">
                 {t('register_prompt')}
               </Text>
               <Anchor component={NavLink} to="/register" size="sm">
@@ -111,8 +134,6 @@ const LoginForm = () => {
       </Paper>
     </Box>
   );
-}
+};
 
 export default LoginForm;
-
-

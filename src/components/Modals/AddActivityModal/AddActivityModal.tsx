@@ -1,7 +1,8 @@
 import React from 'react';
-import { NumberInput, Select, TextInput, Stack } from '@mantine/core';
-import BaseAddRecordModal from '../BaseAddRecordModal/BaseAddRecordModal';
 import { useTranslation } from 'react-i18next';
+import { NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import { toLocalDatetimeInput } from '@/utils/datetime';
+import BaseAddRecordModal from '../BaseAddRecordModal/BaseAddRecordModal';
 
 type Values = {
   duration: number | '';
@@ -17,9 +18,13 @@ type Props = {
   submitLabel?: string;
 };
 
-import { toLocalDatetimeInput } from '@/utils/datetime';
-
-const AddActivityModal: React.FC<Props> = ({ opened, onClose, onAdd, initialValues, submitLabel }) => {
+const AddActivityModal: React.FC<Props> = ({
+  opened,
+  onClose,
+  onAdd,
+  initialValues,
+  submitLabel,
+}) => {
   const defaults: Values = {
     duration: 30,
     time: toLocalDatetimeInput(new Date()),

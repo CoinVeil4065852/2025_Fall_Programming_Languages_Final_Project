@@ -11,7 +11,11 @@ export function mondayFirstDayIndex(d: Date): number {
  * Aggregate values from records into an array of seven numbers, indexed Mon..Sun.
  * Accepts a getDate function and a getValue function to extract date and numeric value.
  */
-export function aggregateByWeekday<T>(items: T[], getDate: (it: T) => DateLike | undefined, getValue: (it: T) => number | undefined) {
+export function aggregateByWeekday<T>(
+  items: T[],
+  getDate: (it: T) => DateLike | undefined,
+  getValue: (it: T) => number | undefined
+) {
   const out = new Array(7).fill(0);
   if (!items || !items.length) {
     return out;

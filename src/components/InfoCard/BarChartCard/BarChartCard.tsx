@@ -1,7 +1,7 @@
 import React from 'react';
-import InfoCard, { InfoCardProps } from '../InfoCard';
-import { Box, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+import { Box, Stack, Text } from '@mantine/core';
+import InfoCard, { InfoCardProps } from '../InfoCard';
 
 type Props = Omit<InfoCardProps, 'children' | 'title'> & {
   title: React.ReactNode;
@@ -37,7 +37,9 @@ const BarChartCard: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const d = data.slice(0, 7);
-  while (d.length < 7) {d.push(0);}
+  while (d.length < 7) {
+    d.push(0);
+  }
   const lbs = labels && labels.length >= 7 ? labels.slice(0, 7) : defaultLabels(t);
 
   const max = Math.max(1, ...d);
@@ -51,7 +53,12 @@ const BarChartCard: React.FC<Props> = ({
     <InfoCard title={title} {...infoCardProps}>
       <Stack gap="sm">
         <Box>
-          <svg width={chartWidth} height={chartHeight} role="img" aria-label={t('bar_chart_for', { title: String(title) })}>
+          <svg
+            width={chartWidth}
+            height={chartHeight}
+            role="img"
+            aria-label={t('bar_chart_for', { title: String(title) })}
+          >
             {[0.25, 0.5, 0.75, 1].map((t) => (
               <line
                 key={t}
@@ -73,7 +80,14 @@ const BarChartCard: React.FC<Props> = ({
               const isToday = i === todayIdx;
               return (
                 <g key={i}>
-                  <rect x={x} y={y} width={barWidth} height={h} rx={4} fill={isToday ? highlightColor : barColor} />
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barWidth}
+                    height={h}
+                    rx={4}
+                    fill={isToday ? highlightColor : barColor}
+                  />
                   <text
                     x={x + barWidth / 2}
                     y={Math.max(padding.top + innerH - h - 6, padding.top + 8)}

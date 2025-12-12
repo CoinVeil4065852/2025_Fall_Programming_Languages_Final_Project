@@ -78,17 +78,21 @@ const DashboardLayout = () => {
     (async () => {
       try {
         const profile = await getProfile(token);
-        if (mounted) {setName(profile.name ?? null);}
+        if (mounted) {
+          setName(profile.name ?? null);
+        }
       } catch (err) {
         // invalid token or request failed: redirect to login
-        if (mounted) {setName(null);}
+        if (mounted) {
+          setName(null);
+        }
         navigate('/login');
       }
     })();
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [navigate]);
 
   return (
     <AppShell

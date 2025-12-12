@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { aggregateByWeekday, mondayFirstDayIndex } from './weekly';
 
 describe('aggregateByWeekday', () => {
@@ -9,7 +9,11 @@ describe('aggregateByWeekday', () => {
       { date: '2025-12-10T12:00:00', v: 3 }, // Wed
       { date: '2025-12-14T09:00:00', v: 4 }, // Sun
     ];
-    const arr = aggregateByWeekday(items, (it) => it.date, (it) => it.v);
+    const arr = aggregateByWeekday(
+      items,
+      (it) => it.date,
+      (it) => it.v
+    );
     // Expect length 7 and values at correct offsets (Mon=0..Sun=6)
     expect(arr).toHaveLength(7);
     expect(arr[0]).toBe(1); // Monday

@@ -1,5 +1,5 @@
 import api from './index';
-import type { Credentials, AuthResponse, User } from './types';
+import type { AuthResponse, Credentials, User } from './types';
 
 export async function login(creds: Credentials): Promise<AuthResponse> {
   return api.login(creds);

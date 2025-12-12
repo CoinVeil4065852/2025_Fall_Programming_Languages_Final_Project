@@ -1,7 +1,7 @@
 import { IconClock, IconFlame } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { calcPercentage } from '@/utils/progress';
 import { Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import { calcPercentage } from '@/utils/progress';
 import { useAppData } from '../../../AppDataContext';
 import InfoCard from '../InfoCard';
 
@@ -136,7 +136,9 @@ const ActivityProgressCard: React.FC<Props> = ({
     // small age factor: +/- up to ~10% between ages 0..100 (clamped)
     const ageFactor = Math.max(0.9, Math.min(1.1, 1 - (age - 30) * 0.003));
 
-    if (!activity || activity.length === 0) {return 0;}
+    if (!activity || activity.length === 0) {
+      return 0;
+    }
 
     let total = 0;
     for (const rec of activity) {

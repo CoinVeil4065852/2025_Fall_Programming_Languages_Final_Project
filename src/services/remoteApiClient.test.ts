@@ -1,9 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { remoteApiClient } from './remoteApiClient';
 
 // Minimal fetch mock response
 function mockFetchResponse(status = 200, body = '') {
-  return Promise.resolve({ ok: status >= 200 && status < 300, status, text: () => Promise.resolve(body) } as unknown as Response);
+  return Promise.resolve({
+    ok: status >= 200 && status < 300,
+    status,
+    text: () => Promise.resolve(body),
+  } as unknown as Response);
 }
 
 describe('remoteApiClient DELETE requests', () => {

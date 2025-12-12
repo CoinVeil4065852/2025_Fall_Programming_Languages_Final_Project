@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Button, Group, Stack, Text, Title } from '@mantine/core';
-import InfoCard, { InfoCardProps } from '../InfoCard';
-import { calcPercentage } from '@/utils/progress';
 import { useTranslation } from 'react-i18next';
+import { Box, Button, Group, Stack, Text, Title } from '@mantine/core';
+import { calcPercentage } from '@/utils/progress';
+import InfoCard, { InfoCardProps } from '../InfoCard';
 
 const WaterTankSvg = ({
   percentage,
@@ -143,7 +143,6 @@ const WaterProgressCard: React.FC<Props> = ({
           <WaterTankSvg percentage={percent} width={140} height={180} />
         </Box>
       </Group>
-      
     </InfoCard>
   );
 };

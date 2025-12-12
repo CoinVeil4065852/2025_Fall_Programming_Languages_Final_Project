@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Group, Modal, Stack } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+import { Button, Group, Modal, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 type BaseAddRecordModalProps<T> = {
@@ -34,7 +34,7 @@ function BaseAddRecordModal<T extends Record<string, any>>({
     if (initialValues) {
       form.setValues(initialValues as T);
     }
-  }, [initialValues, opened]);
+  }, [initialValues, opened, form]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = form.onSubmit(async (values) => {
