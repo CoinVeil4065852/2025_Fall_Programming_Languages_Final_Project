@@ -117,7 +117,7 @@ const WaterProgressCard: React.FC<Props> = ({
   const { t } = useTranslation();
 
   return (
-    <InfoCard title={t('today')} {...infoCardProps}>
+    <InfoCard title={t('daily_water')} {...infoCardProps}>
       <Group gap="xl" justify="center" align="center">
         <Stack>
           <Title order={4}>

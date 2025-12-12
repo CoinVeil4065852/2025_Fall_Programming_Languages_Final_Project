@@ -206,7 +206,7 @@ const DashboardLayout = () => {
             <Text size="md">
               {typeof name === 'string' && name ? name : t('username')}
             </Text>
-            <Tooltip label={t('logout')}>
+              <Tooltip label={t('logout')}>
               <ActionIcon
                 variant="default"
                 onClick={() => {
@@ -215,7 +215,7 @@ const DashboardLayout = () => {
                   sessionStorage.removeItem('authToken');
                   navigate('/login');
                 }}
-                aria-label="Logout"
+                aria-label={t('logout')}
               >
                 <IconLogout size={18} />
               </ActionIcon>

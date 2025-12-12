@@ -73,7 +73,7 @@ const ActivityPage = () => {
             setError(null);
             setDeleteLoadingId(r.id);
             if (deleteActivity) await deleteActivity(r.id);
-            showNotification({ title: t('delete'), message: `${t('activity_records')} deleted`, color: 'green' });
+            showNotification({ title: t('delete'), message: t('deleted', { thing: t('activity_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_activity'));
@@ -112,10 +112,10 @@ const ActivityPage = () => {
             const minutes = typeof duration === 'number' ? duration : Number(duration);
             if (editItem) {
               if (updateActivity) await updateActivity(editItem.id, time, minutes, intensity || '');
-              showNotification({ title: t('edit_activity'), message: `${t('activity_records')} updated`, color: 'green' });
+              showNotification({ title: t('edit_activity'), message: t('updated', { thing: t('activity_records') }), color: 'green' });
             } else {
               if (addActivity) await addActivity(time, minutes, intensity || '');
-              showNotification({ title: t('add_activity'), message: `${t('activity_records')} added`, color: 'green' });
+              showNotification({ title: t('add_activity'), message: t('created', { thing: t('activity_records') }), color: 'green' });
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

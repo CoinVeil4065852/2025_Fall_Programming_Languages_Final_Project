@@ -73,7 +73,7 @@ const CustomCategoryPage = () => {
         await refreshCustomData?.(created.id);
       }
       setNewCategory('');
-      showNotification({ title: t('create'), message: `${newCategory} created`, color: 'green' });
+      showNotification({ title: t('create'), message: t('category_created', { name: newCategory }), color: 'green' });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_create_category'));
@@ -94,7 +94,7 @@ const CustomCategoryPage = () => {
       if (deleteCustomCategory) await deleteCustomCategory(selectedCategory);
       // after deletion, clear selection; the effect watching customCategories will pick a default
       setSelected(null);
-      showNotification({ title: t('delete'), message: 'Deleted category', color: 'green' });
+      showNotification({ title: t('delete'), message: t('category_deleted', { name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '' }), color: 'green' });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_delete_custom_category'));
@@ -145,7 +145,7 @@ const CustomCategoryPage = () => {
       {/** derive which fields to show and explicitly hide `datetime` for custom categories */}
       <RecordList
         style={{ width: '100%' }}
-            title={selectedCategory ? `${categories.find((c) => c.id === selectedCategory)?.categoryName ?? ''} ${t('records')}` : t('select_a_category')}
+            title={selectedCategory ? t('records_for', { name: categories.find((c) => c.id === selectedCategory)?.categoryName ?? '' }) : t('select_a_category')}
         records={uiRecords}
         deleteLoadingId={deleteLoadingId}
           onEdit={(r) => {
@@ -163,7 +163,7 @@ const CustomCategoryPage = () => {
                 if (selectedCategory && deleteCustomItem) {
                       await deleteCustomItem(selectedCategory, r.id);
                       await refreshCustomData?.(selectedCategory);
-                      showNotification({ title: t('delete'), message: 'Deleted', color: 'green' });
+                      showNotification({ title: t('delete'), message: t('deleted', { thing: t('records') }), color: 'green' });
                 }
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -198,13 +198,13 @@ const CustomCategoryPage = () => {
               if (updateCustomItem) {
                   await updateCustomItem(selectedCategory, editItem.id, datetime, note);
                   await refreshCustomData?.(selectedCategory);
-                  showNotification({ title: t('edit_item'), message: t('edit_item') + ' saved', color: 'green' });
+                  showNotification({ title: t('edit_item'), message: t('saved', { thing: t('edit_item') }), color: 'green' });
               }
             } else {
               if (addCustomItem) {
                   await addCustomItem(selectedCategory, datetime, note);
                   await refreshCustomData?.(selectedCategory);
-                  showNotification({ title: t('add_item'), message: t('add_item') + ' created', color: 'green' });
+                  showNotification({ title: t('add_item'), message: t('created', { thing: t('add_item') }), color: 'green' });
               }
             }
           } catch (err) {

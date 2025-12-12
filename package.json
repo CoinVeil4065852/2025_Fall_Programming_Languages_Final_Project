@@ -21,7 +21,16 @@
     "storybook:build": "storybook build"
   },
   "author": "CoinVeil4065852",
-  "keywords": ["health","activity","sleep","water","dashboard","react","vite","mantine"],
+  "keywords": [
+    "health",
+    "activity",
+    "sleep",
+    "water",
+    "dashboard",
+    "react",
+    "vite",
+    "mantine"
+  ],
   "homepage": "https://github.com/CoinVeil4065852/2025_Fall_Programming_Languages_Final_Project_Frontend",
   "repository": {
     "type": "git",

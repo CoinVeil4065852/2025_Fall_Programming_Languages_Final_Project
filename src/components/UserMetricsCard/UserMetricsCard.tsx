@@ -43,7 +43,7 @@ const UserMetricsCard: React.FC<Props> = ({ profile, error, bmi: apiBmi }) => {
                 {profile?.name ?? '—'}
               </Text>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600} mt={2}>
-                {profile?.gender ? String(profile.gender) : '—'}
+                {profile?.gender ? t(profile.gender) : '—'}
               </Text>
             </div>
 

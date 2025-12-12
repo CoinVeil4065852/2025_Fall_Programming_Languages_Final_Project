@@ -57,7 +57,7 @@ const SleepPage = () => {
             setError(null);
             setDeleteLoadingId(r.id);
             if (deleteSleep) await deleteSleep(r.id);
-            showNotification({ title: t('delete'), message: `${t('sleep_records')} deleted`, color: 'green' });
+            showNotification({ title: t('delete'), message: t('deleted', { thing: t('sleep_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_sleep'));
@@ -95,10 +95,10 @@ const SleepPage = () => {
             setError(null);
             if (editItem) {
               if (updateSleep) await updateSleep(editItem.id, time, Number(hours));
-              showNotification({ title: t('edit_sleep'), message: `${t('sleep_records')} updated`, color: 'green' });
+              showNotification({ title: t('edit_sleep'), message: t('updated', { thing: t('sleep_records') }), color: 'green' });
             } else {
               if (addSleep) await addSleep(time, Number(hours));
-              showNotification({ title: t('add_sleep'), message: `${t('sleep_records')} added`, color: 'green' });
+              showNotification({ title: t('add_sleep'), message: t('created', { thing: t('sleep_records') }), color: 'green' });
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

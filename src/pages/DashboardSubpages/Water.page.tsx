@@ -46,7 +46,7 @@ const WaterPage = () => {
       const min = pad(now.getMinutes());
       const datetime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
       if (addWater) await addWater(datetime, 250);
-      showNotification({ title: t('add_250_ml'), message: `${t('add_250_ml')} success`, color: 'green' });
+      showNotification({ title: t('add_250_ml'), message: t('add_250_ml_success'), color: 'green' });
         } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_add_250ml'));
@@ -85,7 +85,7 @@ const WaterPage = () => {
             setError(null);
             setDeleteLoadingId(r.id);
             if (deleteWater) await deleteWater(r.id);
-            showNotification({ title: t('delete'), message: `${t('water_records')} deleted`, color: 'green' });
+            showNotification({ title: t('delete'), message: t('deleted', { thing: t('water_records') }), color: 'green' });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             setError(msg ?? t('failed_delete_record'));
@@ -123,10 +123,10 @@ const WaterPage = () => {
             setError(null);
             if (editItem) {
               if (updateWater) await updateWater(editItem.id, time, amount);
-              showNotification({ title: t('edit_water'), message: `${t('water_records')} updated`, color: 'green' });
+              showNotification({ title: t('edit_water'), message: t('updated', { thing: t('water_records') }), color: 'green' });
             } else {
               if (addWater) await addWater(time, amount);
-              showNotification({ title: t('add_water'), message: `${t('water_records')} added`, color: 'green' });
+              showNotification({ title: t('add_water'), message: t('created', { thing: t('water_records') }), color: 'green' });
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

@@ -17,7 +17,7 @@ const SleepProgressCard: React.FC<Props> = ({ currentHours = 6.5, goalHours = 8,
   const { t } = useTranslation();
 
   return (
-    <InfoCard title={t('sleep')} {...infoCardProps}>
+    <InfoCard title={t('daily_sleep')} {...infoCardProps}>
         
       <Stack justify='center' align='center' gap={'md'}>
         <Stack>

@@ -1,6 +1,7 @@
 import React from 'react';
 import InfoCard, { InfoCardProps } from '../InfoCard';
 import { Box, Stack, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 type Props = Omit<InfoCardProps, 'children' | 'title'> & {
   title: React.ReactNode;
@@ -13,7 +14,15 @@ type Props = Omit<InfoCardProps, 'children' | 'title'> & {
   highlightColor?: string;
 };
 
-const defaultLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const defaultLabels = (t: (s: string) => string) => [
+  t('weekday_short_mon'),
+  t('weekday_short_tue'),
+  t('weekday_short_wed'),
+  t('weekday_short_thu'),
+  t('weekday_short_fri'),
+  t('weekday_short_sat'),
+  t('weekday_short_sun'),
+];
 
 const BarChartCard: React.FC<Props> = ({
   title,
@@ -26,9 +35,10 @@ const BarChartCard: React.FC<Props> = ({
   highlightColor = '#1971c2',
   ...infoCardProps
 }) => {
+  const { t } = useTranslation();
   const d = data.slice(0, 7);
   while (d.length < 7) d.push(0);
-  const lbs = labels && labels.length >= 7 ? labels.slice(0, 7) : defaultLabels;
+  const lbs = labels && labels.length >= 7 ? labels.slice(0, 7) : defaultLabels(t);
 
   const max = Math.max(1, ...d);
   const padding = { top: 8, bottom: 28, left: 12, right: 12 };
@@ -41,7 +51,7 @@ const BarChartCard: React.FC<Props> = ({
     <InfoCard title={title} {...infoCardProps}>
       <Stack gap="sm">
         <Box>
-          <svg width={chartWidth} height={chartHeight} role="img" aria-label={`${title} bar chart`}>
+          <svg width={chartWidth} height={chartHeight} role="img" aria-label={t('bar_chart_for', { title: String(title) })}>
             {[0.25, 0.5, 0.75, 1].map((t) => (
               <line
                 key={t}
@@ -90,7 +100,7 @@ const BarChartCard: React.FC<Props> = ({
         </Box>
 
         <Text size="sm" c="dimmed">
-          {unitLabel ? `Weekly totals shown in ${unitLabel}` : ''}
+          {unitLabel ? t('weekly_totals_shown_in', { unit: unitLabel }) : ''}
         </Text>
       </Stack>
     </InfoCard>
