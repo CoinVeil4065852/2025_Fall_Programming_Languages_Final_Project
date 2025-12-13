@@ -52,7 +52,7 @@ const CustomCategoryPage = () => {
     }
     // refresh data for the selected category when it changes or when component mounts
     refreshCustomData?.(selectedCategory);
-  }, [selectedCategory, refreshCustomData]);
+  }, [selectedCategory]);
 
   const uiRecords: UiCustomRecord[] = (customData?.[selectedCategory ?? ''] ?? []).map((item) => ({
     id: String(item.id ?? ''),
