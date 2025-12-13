@@ -145,6 +145,13 @@ export const remoteApiClient: ApiClient = {
     });
     return json as SleepRecord;
   },
+  async deleteSleep(token, id) {
+    await req(`/sleeps/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+  },
 
   async addActivity(token, datetime, minutes, intensity) {
     const body = JSON.stringify({ datetime, minutes, intensity });
