@@ -98,242 +98,176 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { t } = useTranslation();
 
   const refreshProfile = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setProfile(null);
-      }
-      const p = await api.getProfile(auth);
-      setProfile(p || null);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_profile'));
+    const auth = token();
+    if (!auth) {
       setProfile(null);
+      return;
     }
+    const p = await api.getProfile(auth);
+    setProfile(p || null);
   };
 
   const refreshWater = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setWater([]);
-      }
-      const recs = await api.getAllWater(auth);
-      setWater(recs || []);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_water'));
+    const auth = token();
+    if (!auth) {
       setWater([]);
+      return;
     }
+    const recs = await api.getAllWater(auth);
+    setWater(recs || []);
   };
 
   const refreshSleep = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setSleep([]);
-      }
-      const recs = (api.getAllSleep ? await api.getAllSleep(auth) : []) as SleepRecord[];
-      setSleep(recs || []);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_sleep'));
+    const auth = token();
+    if (!auth) {
       setSleep([]);
+      return;
     }
+    const recs = (api.getAllSleep ? await api.getAllSleep(auth) : []) as SleepRecord[];
+    setSleep(recs || []);
   };
 
   const refreshActivity = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setActivity([]);
-      }
-      const recs = await api.getAllActivity(auth);
-      setActivity(recs || []);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_activity'));
+    const auth = token();
+    if (!auth) {
       setActivity([]);
+      return;
     }
+    const recs = await api.getAllActivity(auth);
+    setActivity(recs || []);
   };
 
   const refreshCustomCategories = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setCustomCategories([]);
-      }
-      if (!api.getCustomCategories) {
-        return setCustomCategories([]);
-      }
-      const cats = (await api.getCustomCategories(auth)) || [];
-      setCustomCategories(cats);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_categories'));
+    const auth = token();
+    if (!auth) {
       setCustomCategories([]);
+      return;
     }
+    if (!api.getCustomCategories) {
+      setCustomCategories([]);
+      return;
+    }
+    const cats = (await api.getCustomCategories(auth)) || [];
+    setCustomCategories(cats);
   };
 
   const refreshCustomData = async (categoryId: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return;
-      }
-      if (!api.getCustomData) {
-        return;
-      }
-      const data = await api.getCustomData(categoryId, auth);
-      setCustomData((prev) => ({ ...prev, [categoryId]: data || [] }));
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_custom_data'));
-      setCustomData((prev) => ({ ...prev, [categoryId]: [] }));
+    const auth = token();
+    if (!auth) {
+      return;
     }
+    if (!api.getCustomData) {
+      return;
+    }
+    const data = await api.getCustomData(categoryId, auth);
+    setCustomData((prev) => ({ ...prev, [categoryId]: data || [] }));
   };
 
   const refreshAll = async () => {
     setLoading(true);
-    await Promise.all([
-      refreshProfile(),
-      refreshWater(),
-      refreshSleep(),
-      refreshActivity(),
-      refreshCustomCategories(),
-      refreshBmi(),
-    ]);
-    setLoading(false);
+    try {
+      await Promise.all([
+        refreshProfile(),
+        refreshWater(),
+        refreshSleep(),
+        refreshActivity(),
+        refreshCustomCategories(),
+        refreshBmi(),
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const [bmi, setBmi] = useState<number | undefined>(undefined);
 
   const refreshBmi = async () => {
-    try {
-      const auth = token();
-      if (!auth) {
-        return setBmi(undefined);
-      }
-      if (!api.getBMI) {
-        return setBmi(undefined);
-      }
-      const v = await api.getBMI(auth);
-      setBmi(v);
-    } catch (e) {
+    const auth = token();
+    if (!auth) {
       setBmi(undefined);
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_load_bmi'));
+      return;
     }
+    if (!api.getBMI) {
+      setBmi(undefined);
+      return;
+    }
+    const v = await api.getBMI(auth);
+    setBmi(v);
   };
 
   // ops
   const addWater = async (datetime: string, amountMl: number) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      const created = await api.addWater(auth, datetime, amountMl);
-      await refreshWater();
-      return created;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_add_water'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    const created = await api.addWater(auth, datetime, amountMl);
+    await refreshWater();
+    return created;
   };
 
   const updateWater = async (id: string, datetime: string, amountMl: number) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.updateWater) {
-        await api.updateWater(auth, id, datetime, amountMl);
-      }
-      await refreshWater();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_update_water'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.updateWater) {
+      await api.updateWater(auth, id, datetime, amountMl);
+    }
+    await refreshWater();
   };
 
   const deleteWater = async (id: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.deleteWater) {
-        await api.deleteWater(auth, id);
-      }
-      await refreshWater();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_delete_water'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.deleteWater) {
+      await api.deleteWater(auth, id);
+    }
+    await refreshWater();
   };
 
   const addSleep = async (datetime: string, hours: number) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      const created = api.addSleep ? await api.addSleep(auth, datetime, hours) : undefined;
-      await refreshSleep();
-      return created;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_add_sleep'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    const created = api.addSleep ? await api.addSleep(auth, datetime, hours) : undefined;
+    await refreshSleep();
+    return created;
   };
 
   const updateSleep = async (id: string, datetime: string, hours: number) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.updateSleep) {
-        await api.updateSleep(auth, id, datetime, hours);
-      }
-      await refreshSleep();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_update_sleep'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.updateSleep) {
+      await api.updateSleep(auth, id, datetime, hours);
+    }
+    await refreshSleep();
   };
 
   const deleteSleep = async (id: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.deleteSleep) {
-        await api.deleteSleep(auth, id);
-      }
-      await refreshSleep();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_delete_sleep'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.deleteSleep) {
+      await api.deleteSleep(auth, id);
+    }
+    await refreshSleep();
   };
 
   const addActivity = async (datetime: string, minutes: number, intensity: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      const created = await api.addActivity(auth, datetime, minutes, intensity);
-      await refreshActivity();
-      return created;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_add_activity'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    const created = await api.addActivity(auth, datetime, minutes, intensity);
+    await refreshActivity();
+    return created;
   };
 
   const updateActivity = async (
@@ -342,68 +276,48 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     minutes: number,
     intensity: string
   ) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.updateActivity) {
-        await api.updateActivity(auth, id, datetime, minutes, intensity);
-      }
-      await refreshActivity();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_update_activity'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.updateActivity) {
+      await api.updateActivity(auth, id, datetime, minutes, intensity);
+    }
+    await refreshActivity();
   };
 
   const deleteActivity = async (id: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.deleteActivity) {
-        await api.deleteActivity(auth, id);
-      }
-      await refreshActivity();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_delete_activity'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.deleteActivity) {
+      await api.deleteActivity(auth, id);
+    }
+    await refreshActivity();
   };
 
   const createCustomCategory = async (categoryName: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      const created = api.createCustomCategory
-        ? await api.createCustomCategory(categoryName, auth)
-        : undefined;
-      await refreshCustomCategories();
-      return created;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_create_category'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    const created = api.createCustomCategory
+      ? await api.createCustomCategory(categoryName, auth)
+      : undefined;
+    await refreshCustomCategories();
+    return created;
   };
 
   const addCustomItem = async (categoryId: string, datetime: string, note: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.addCustomItem) {
-        await api.addCustomItem(auth, categoryId, datetime, note);
-      }
-      await refreshCustomData(categoryId);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_add_custom_item'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.addCustomItem) {
+      await api.addCustomItem(auth, categoryId, datetime, note);
+    }
+    await refreshCustomData(categoryId);
   };
 
   const updateCustomItem = async (
@@ -412,57 +326,42 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     datetime: string,
     note: string
   ) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.updateCustomItem) {
-        await api.updateCustomItem(auth, categoryId, itemId, datetime, note);
-      }
-      await refreshCustomData(categoryId);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_update_custom_item'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.updateCustomItem) {
+      await api.updateCustomItem(auth, categoryId, itemId, datetime, note);
+    }
+    await refreshCustomData(categoryId);
   };
 
   const deleteCustomItem = async (categoryId: string, itemId: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.deleteCustomItem) {
-        await api.deleteCustomItem(auth, categoryId, itemId);
-      }
-      await refreshCustomData(categoryId);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_delete_custom_item'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.deleteCustomItem) {
+      await api.deleteCustomItem(auth, categoryId, itemId);
+    }
+    await refreshCustomData(categoryId);
   };
 
   const deleteCustomCategory = async (categoryId: string) => {
-    try {
-      const auth = token();
-      if (!auth) {
-        throw new Error(t('not_authenticated'));
-      }
-      if (api.deleteCustomCategory) {
-        await api.deleteCustomCategory(auth, categoryId);
-      }
-      // refresh categories and remove any local data for that category
-      await refreshCustomCategories();
-      setCustomData((prev) => {
-        const copy = { ...prev };
-        delete copy[categoryId];
-        return copy;
-      });
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(msg ?? t('failed_delete_category'));
+    const auth = token();
+    if (!auth) {
+      throw new Error(t('not_authenticated'));
     }
+    if (api.deleteCustomCategory) {
+      await api.deleteCustomCategory(auth, categoryId);
+    }
+    // refresh categories and remove any local data for that category
+    await refreshCustomCategories();
+    setCustomData((prev) => {
+      const copy = { ...prev };
+      delete copy[categoryId];
+      return copy;
+    });
   };
 
   useEffect(() => {
