@@ -18,7 +18,6 @@ type UiActivityRecord = {
 };
 
 const ActivityPage = () => {
-  const [error, setError] = useState<string | null>(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<UiActivityRecord | null>(null);
@@ -50,11 +49,6 @@ const ActivityPage = () => {
         caloriesGoal={600}
         durationMinutes={totalMinutes}
       />
-      {error && (
-        <Text c="red" size="sm">
-          {error}
-        </Text>
-      )}
       <ActivityWeeklyCard data={weeklyActivity} />
       <RecordList
         title={t('activity_records')}
@@ -73,7 +67,6 @@ const ActivityPage = () => {
         }}
         onDelete={async (r) => {
           try {
-            setError(null);
             setDeleteLoadingId(r.id);
             if (deleteActivity) {
               await deleteActivity(r.id);
@@ -85,7 +78,7 @@ const ActivityPage = () => {
             });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            setError(msg ?? t('failed_delete_activity'));
+
             showNotification({
               title: t('failed_delete_activity'),
               message: err instanceof Error ? err.message : String(err),
@@ -122,7 +115,6 @@ const ActivityPage = () => {
         }
         onAdd={async ({ duration, time, intensity }) => {
           try {
-            setError(null);
             const minutes = typeof duration === 'number' ? duration : Number(duration);
             if (editItem) {
               if (updateActivity) {
@@ -145,7 +137,7 @@ const ActivityPage = () => {
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            setError(msg ?? t(editItem ? 'failed_update_activity' : 'failed_add_activity'));
+
             showNotification({
               title: t(editItem ? 'failed_update_activity' : 'failed_add_activity'),
               message: String(msg),

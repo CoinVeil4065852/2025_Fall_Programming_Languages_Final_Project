@@ -17,7 +17,7 @@ const CustomCategoryPage = () => {
   const [editItem, setEditItem] = useState<CustomItem | null>(null);
   const [newCategory, setNewCategory] = useState('');
   const [createLoading, setCreateLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [deleteCategoryLoading, setDeleteCategoryLoading] = useState(false);
 
@@ -66,7 +66,6 @@ const CustomCategoryPage = () => {
       return;
     }
     try {
-      setError(null);
       setCreateLoading(true);
       if (!createCustomCategory) {
         throw new Error(t('endpoint_not_implemented'));
@@ -84,7 +83,7 @@ const CustomCategoryPage = () => {
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg ?? t('failed_create_category'));
+
       showNotification({ title: t('failed_create_category'), message: msg, color: 'red' });
       setNewCategory('');
     } finally {
@@ -104,7 +103,6 @@ const CustomCategoryPage = () => {
       return;
     }
     try {
-      setError(null);
       setDeleteCategoryLoading(true);
       if (deleteCustomCategory) {
         await deleteCustomCategory(selectedCategory);
@@ -120,7 +118,7 @@ const CustomCategoryPage = () => {
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg ?? t('failed_delete_custom_category'));
+
       showNotification({ title: t('failed_delete_custom_category'), message: msg, color: 'red' });
     } finally {
       setDeleteCategoryLoading(false);
@@ -167,12 +165,6 @@ const CustomCategoryPage = () => {
         </Group>
       </Stack>
 
-      {error && (
-        <Text c="red" size="sm">
-          {error}
-        </Text>
-      )}
-
       {/** derive which fields to show and explicitly hide `datetime` for custom categories */}
       <RecordList
         style={{ width: '100%' }}
@@ -195,7 +187,6 @@ const CustomCategoryPage = () => {
         }}
         onDelete={async (r) => {
           try {
-            setError(null);
             setDeleteLoadingId(r.id);
             if (selectedCategory && deleteCustomItem) {
               await deleteCustomItem(selectedCategory, r.id);
@@ -207,7 +198,7 @@ const CustomCategoryPage = () => {
             }
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            setError(msg ?? t('failed_delete_custom_item'));
+
             showNotification({ title: t('failed_delete_custom_item'), message: msg, color: 'red' });
           } finally {
             setDeleteLoadingId(null);
@@ -255,7 +246,6 @@ const CustomCategoryPage = () => {
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             if (editItem) {
-              setError(msg ?? t('failed_update_custom_item'));
             }
             showNotification({
               title: t(editItem ? 'failed_update_custom_item' : 'failed_add_custom_item'),

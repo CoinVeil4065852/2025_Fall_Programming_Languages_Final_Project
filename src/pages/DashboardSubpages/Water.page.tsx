@@ -19,7 +19,6 @@ const WaterPage = () => {
 
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<UiWaterRecord | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [isAdding250, setIsAdding250] = useState(false);
 
@@ -34,7 +33,6 @@ const WaterPage = () => {
 
   const onAdd250Click = async () => {
     try {
-      setError(null);
       setIsAdding250(true);
       const now = new Date();
       const pad = (n: number) => n.toString().padStart(2, '0');
@@ -54,7 +52,6 @@ const WaterPage = () => {
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg ?? t('failed_add_250ml'));
       showNotification({ title: t('failed_add_250ml'), message: msg, color: 'red' });
     } finally {
       setIsAdding250(false);
@@ -70,11 +67,6 @@ const WaterPage = () => {
         onAdd250Click={onAdd250Click}
         add250Loading={isAdding250}
       />
-      {error && (
-        <Text c="red" size="sm">
-          {error}
-        </Text>
-      )}
       <WaterWeeklyCard
         data={aggregateByWeekday(
           uiRecords,
@@ -95,7 +87,6 @@ const WaterPage = () => {
         }}
         onDelete={async (r) => {
           try {
-            setError(null);
             setDeleteLoadingId(r.id);
             if (deleteWater) {
               await deleteWater(r.id);
@@ -107,7 +98,6 @@ const WaterPage = () => {
             });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            setError(msg ?? t('failed_delete_record'));
             showNotification({ title: t('failed_delete_record'), message: msg, color: 'red' });
           } finally {
             setDeleteLoadingId(null);
@@ -138,7 +128,6 @@ const WaterPage = () => {
         }
         onAdd={async ({ amount, time }) => {
           try {
-            setError(null);
             if (editItem) {
               if (updateWater) {
                 await updateWater(editItem.id, time, amount);
@@ -160,7 +149,6 @@ const WaterPage = () => {
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            setError(msg ?? t('failed_save_record'));
             showNotification({ title: t('failed_save_record'), message: msg, color: 'red' });
           } finally {
             setAddOpen(false);

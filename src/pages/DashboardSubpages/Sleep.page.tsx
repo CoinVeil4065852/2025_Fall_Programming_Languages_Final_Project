@@ -12,7 +12,6 @@ import RecordList from '../../components/RecordList/RecordList';
 type UiSleepRecord = { id: string; date: string; time?: string; hours: number };
 
 const SleepPage = () => {
-  const [error, setError] = useState<string | null>(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<UiSleepRecord | null>(null);
@@ -36,11 +35,7 @@ const SleepPage = () => {
   return (
     <Group gap="md" justify="start" align="stretch">
       <SleepProgressCard currentHours={Number(avg === '—' ? 0 : avg)} goalHours={8} />
-      {error && (
-        <Text c="red" size="sm">
-          {error}
-        </Text>
-      )}
+
       <SleepWeeklyCard
         data={aggregateByWeekday(
           recordsFromCtx,
@@ -60,7 +55,6 @@ const SleepPage = () => {
         }}
         onDelete={async (r) => {
           try {
-            setError(null);
             setDeleteLoadingId(r.id);
             if (deleteSleep) {
               await deleteSleep(r.id);
@@ -72,7 +66,7 @@ const SleepPage = () => {
             });
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
-            setError(msg ?? t('failed_delete_sleep'));
+
             showNotification({ title: t('failed_delete_sleep'), message: msg, color: 'red' });
           } finally {
             setDeleteLoadingId(null);
@@ -103,7 +97,6 @@ const SleepPage = () => {
         }
         onAdd={async ({ hours, time }) => {
           try {
-            setError(null);
             if (editItem) {
               if (updateSleep) {
                 await updateSleep(editItem.id, time, Number(hours));
@@ -125,7 +118,6 @@ const SleepPage = () => {
             }
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            setError(msg ?? (editItem ? t('failed_update_sleep') : t('failed_add_sleep')));
             showNotification({
               title: t(editItem ? 'failed_update_sleep' : 'failed_add_sleep'),
               message: msg,
