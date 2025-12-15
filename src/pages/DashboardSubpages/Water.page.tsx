@@ -55,6 +55,7 @@ const WaterPage = () => {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg ?? t('failed_add_250ml'));
+      showNotification({ title: t('failed_add_250ml'), message: msg, color: 'red' });
     } finally {
       setIsAdding250(false);
     }
