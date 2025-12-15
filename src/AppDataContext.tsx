@@ -90,7 +90,6 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
   const [customData, setCustomData] = useState<Record<string, CustomItem[]>>({});
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const token = () =>
     (localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '') as string;
@@ -380,7 +379,6 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         customCategories,
         customData,
         loading,
-        error,
         refreshAll,
         refreshProfile,
         refreshWater,
